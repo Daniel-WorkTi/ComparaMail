@@ -1,0 +1,1112 @@
+{
+  "matches": [
+    {
+      "email": "ana.soares@comparaja.pt",
+      "nome": "Ana Mafalda Soares",
+      "fotoId": "1u8D2DCKvT6QJMQVKUQ4sBvSunw4anJFb",
+      "fileName": "mafalda-soares.png",
+      "path": "HL/GC",
+      "score": 99,
+      "manual": true
+    },
+    {
+      "email": "anna.loyola@comparaja.pt",
+      "nome": "Anna Loyola",
+      "fotoId": "1O9hXQcU_bOSNvyJ-TGWi1_H52iylD1fh",
+      "fileName": "anna-loyla.png",
+      "path": "ENERGIA",
+      "score": 99,
+      "manual": true
+    },
+    {
+      "email": "bernardo.aguamel@comparaja.pt",
+      "nome": "Bernardo Água-Mel",
+      "fotoId": "1MO-RwSuPXAdSyKjCXuVgqczq1bOfwljV",
+      "fileName": "bernardo-mel.png",
+      "path": "PROD&TECH",
+      "score": 99,
+      "manual": true
+    },
+    {
+      "email": "daniel.maia@comparaja.pt",
+      "nome": "Daniel Maia",
+      "fotoId": "1PVpbOtqpi4oFjq585U_YxnRL3yrixLmJ",
+      "fileName": "(manual id)",
+      "path": "",
+      "score": 100,
+      "manual": true
+    },
+    {
+      "email": "mafalda.amaral@comparaja.pt",
+      "nome": "Mafalda Amaral",
+      "fotoId": "1In9phqu6HwTH-SUFO8EgnPFJdDVwyeo2",
+      "fileName": "Copy of mafalda.png",
+      "path": "SEGUROS",
+      "score": 99,
+      "manual": true
+    },
+    {
+      "email": "adryana.mayara@comparaja.pt",
+      "nome": "Adryana Mayara",
+      "fotoId": "1ffS7N4tkzSqekaJN4vkpzuMnp8DHaVeT",
+      "fileName": "adryana-mayara.png",
+      "path": "ENERGIA",
+      "score": 100
+    },
+    {
+      "email": "ana.ferreira@comparaja.pt",
+      "nome": "Ana Isabel Ferreira",
+      "fotoId": "17AJkipkMXVUMYZPE2MEIMA4fWZquMNsA",
+      "fileName": "ana-isabel-ferreira.png",
+      "path": "HL/CONSULTORES",
+      "score": 100
+    },
+    {
+      "email": "ana.sofia.silva@comparaja.pt",
+      "nome": "Ana Sofia Silva",
+      "fotoId": "1o1YGJfeJu2Pc2HM-N02gexCr-2mK6bhQ",
+      "fileName": "ana-sofia-silva.png",
+      "path": "ENERGIA",
+      "score": 100
+    },
+    {
+      "email": "andre.assis@comparaja.pt",
+      "nome": "André Assis",
+      "fotoId": "1j-QYVgV23dRD3tuMjfyStZEwtPjIHuoZ",
+      "fileName": "andre-assis.png",
+      "path": "ENERGIA",
+      "score": 100
+    },
+    {
+      "email": "andre.nunes@comparaja.pt",
+      "nome": "André Nunes",
+      "fotoId": "1_VoZ3DP-f1bU5H79AGOCiSA5JJGKPWzl",
+      "fileName": "andre-nunes.png",
+      "path": "ENERGIA",
+      "score": 100
+    },
+    {
+      "email": "antonio.j.rebelo@comparaja.pt",
+      "nome": "António Rebelo",
+      "fotoId": "1oa58g5hXJjGbs1NCNaTggFJbnlKNPjYw",
+      "fileName": "antonio-rebelo.png",
+      "path": "HL/LPA",
+      "score": 100
+    },
+    {
+      "email": "antonio.santos@comparaja.pt",
+      "nome": "António Santos",
+      "fotoId": "1ltMK1clkb_Rzeq66nBOfxDuWSY7RFWOs",
+      "fileName": "antonio-santos.png",
+      "path": "ENERGIA",
+      "score": 100
+    },
+    {
+      "email": "arthur.almeida@comparaja.pt",
+      "nome": "Arthur Almeida",
+      "fotoId": "1E0qHZp5tdBxo3jr8zzNWBnbdCEzCwchi",
+      "fileName": "Arthur Almeida.png",
+      "path": "SEGUROS",
+      "score": 100
+    },
+    {
+      "email": "barbara.martins@comparaja.pt",
+      "nome": "Bárbara Martins",
+      "fotoId": "1PrnHKGtT7xmpiCIUiZSW8vQNWqAB9vIt",
+      "fileName": "barbara-martins.png",
+      "path": "HL/LPA",
+      "score": 100
+    },
+    {
+      "email": "beatriz.barbosa@comparaja.pt",
+      "nome": "Beatriz Barbosa",
+      "fotoId": "17K49rkyUEq7rQARg-WWLSNo77Oc9Kr7_",
+      "fileName": "beatriz-barbosa.png",
+      "path": "MKT",
+      "score": 100
+    },
+    {
+      "email": "beatriz.batista@comparaja.pt",
+      "nome": "Beatriz Batista",
+      "fotoId": "14iDxp0qLkNk8UPoHWsI3XRXgSsfWEure",
+      "fileName": "beatriz-batista.png",
+      "path": "HL/GC",
+      "score": 100
+    },
+    {
+      "email": "benedita.quintanilha@comparaja.pt",
+      "nome": "Benedita Quintanilha",
+      "fotoId": "1gF449Dvjniwm-Wvoh6HKzR_u3V9septD",
+      "fileName": "benedita-quintanilha.png",
+      "path": "HR",
+      "score": 100
+    },
+    {
+      "email": "bernardo.silva@comparaja.pt",
+      "nome": "Bernardo Silva",
+      "fotoId": "1eDE_spKQVigAo5DW62Dsmehq62sL8bj8",
+      "fileName": "bernardo-silva.png",
+      "path": "MKT",
+      "score": 100
+    },
+    {
+      "email": "bruno.siqueira@comparaja.pt",
+      "nome": "Bruno Siqueira",
+      "fotoId": "1jXug9tAnaTSq9oHD_vQa_R3NdeBx2jEg",
+      "fileName": "bruno-siqueira.png",
+      "path": "ENERGIA",
+      "score": 100
+    },
+    {
+      "email": "carlos.ribeiro@comparaja.pt",
+      "nome": "Carlos Ribeiro",
+      "fotoId": "1oB55x92jsIuYfpDj0dCRJi8oaddfAWZ0",
+      "fileName": "carlos-ribeiro.png",
+      "path": "HL/CONSULTORES",
+      "score": 100
+    },
+    {
+      "email": "carolina.knotz@comparaja.pt",
+      "nome": "Carolina Knotz",
+      "fotoId": "1lW9VkSGx1Zl_Nfyg0xqEej18NuUi1ppx",
+      "fileName": "carolina-knotz.png",
+      "path": "HL/GC",
+      "score": 100
+    },
+    {
+      "email": "carolina.matos@comparaja.pt",
+      "nome": "Carolina Matos",
+      "fotoId": "1ImDj0KWOIWEKHmSYEdxZ3n9iiiTxjRSo",
+      "fileName": "Carolina Matos.png",
+      "path": "HL/CONSULTORES",
+      "score": 100
+    },
+    {
+      "email": "caroline.moraes@comparaja.pt",
+      "nome": "Caroline Moraes",
+      "fotoId": "1xt5VTm5PdKcgZuy5v5yEBns81Wh-aiB1",
+      "fileName": "caroline-moraes.png",
+      "path": "SEGUROS",
+      "score": 100
+    },
+    {
+      "email": "caroline.serafim@comparaja.pt",
+      "nome": "Caroline Serafim",
+      "fotoId": "1BKXg8dMYFyXDHutWK069rur8n5wM_LwZ",
+      "fileName": "Caroline Serafim.png",
+      "path": "ENERGIA",
+      "score": 100
+    },
+    {
+      "email": "catarina.cardoso@comparaja.pt",
+      "nome": "Catarina Cardoso",
+      "fotoId": "1H3GRqH8pkPVFU03tXsJOu7iJ-Sw9ySje",
+      "fileName": "catarina-cardoso.png",
+      "path": "HL/CONSULTORES",
+      "score": 100
+    },
+    {
+      "email": "catarina.cota@comparaja.pt",
+      "nome": "Catarina Cota",
+      "fotoId": "1N2xdp0B9OScWtiUBCKl19JNvAxoKOVYA",
+      "fileName": "catarina-cota.png",
+      "path": "SEGUROS",
+      "score": 100
+    },
+    {
+      "email": "catarina.virgilio@comparaja.pt",
+      "nome": "Catarina Virgílio",
+      "fotoId": "1YwUvTZGDlDH9Hhz605N6MckpBssXAtYV",
+      "fileName": "Catarina Virgílio.png",
+      "path": "HR",
+      "score": 100
+    },
+    {
+      "email": "claudia.monteiro@comparaja.pt",
+      "nome": "Cláudia Monteiro",
+      "fotoId": "1YYlHwa8kNU2SMI9kBAUnrJSm9ry3z0Op",
+      "fileName": "claudia-monteiro.png",
+      "path": "HL/GC",
+      "score": 100
+    },
+    {
+      "email": "cristina.folgado@comparaja.pt",
+      "nome": "Cristina Folgado",
+      "fotoId": "15D-sGijsL5nUwoOcw3UJUCviVbFj0DJu",
+      "fileName": "cristina-folgado.png",
+      "path": "HL/REAL ESTATE",
+      "score": 100
+    },
+    {
+      "email": "catia.gouveia@comparaja.pt",
+      "nome": "Cátia Gouveia",
+      "fotoId": "1iCjkcW6PCB_R5H_ROzGsJkiU9sIndDd4",
+      "fileName": "catia-gouveia.png",
+      "path": "HL/GC",
+      "score": 100
+    },
+    {
+      "email": "catia.lourenco@comparaja.pt",
+      "nome": "Cátia Lourenço",
+      "fotoId": "1NuqjkHAysblaxYt3kKJO8_bYmAE_KSoR",
+      "fileName": "catia-lourenco.png",
+      "path": "HL/LPA",
+      "score": 100
+    },
+    {
+      "email": "daire.goncalves@comparaja.pt",
+      "nome": "Dairé Gonçalves",
+      "fotoId": "135MlZK5_74ydSIf_M24sMSVudZqUf6ym",
+      "fileName": "dairé-gonçalves.png",
+      "path": "HL/CONSULTORES",
+      "score": 100
+    },
+    {
+      "email": "daniela.ferreira@comparaja.pt",
+      "nome": "Daniela Ferreira",
+      "fotoId": "1ixFo8EA6Jc89ntNkLEc1r1DDzb657xgv",
+      "fileName": "daniela-ferreira.png",
+      "path": "HL/GC",
+      "score": 100
+    },
+    {
+      "email": "diogo.barao@comparaja.pt",
+      "nome": "Diogo Barão",
+      "fotoId": "1--rtYbuA4VjTkLWzg4_zWVGeqmpanph5",
+      "fileName": "diogo-barao.png",
+      "path": "BUSINESS",
+      "score": 100
+    },
+    {
+      "email": "diogo.couto@comparaja.pt",
+      "nome": "Diogo Couto",
+      "fotoId": "1eLZaI9UjZavwHyDxgeT-pvsMKk4MHIwf",
+      "fileName": "diogo-couto.png",
+      "path": "ENERGIA",
+      "score": 100
+    },
+    {
+      "email": "diogo.luis@comparaja.pt",
+      "nome": "Diogo Luís",
+      "fotoId": "19PO0O2nezT8NoKrR6W9fXkzjCzNs9zlV",
+      "fileName": "diogo-luis.png",
+      "path": "PROD&TECH",
+      "score": 100
+    },
+    {
+      "email": "diogo.nunes@comparaja.pt",
+      "nome": "Diogo Nunes",
+      "fotoId": "1MY3foQauz0R35yEhYnkfnRr3q4plH25C",
+      "fileName": "diogo-nunes.png",
+      "path": "HL/CONSULTORES",
+      "score": 100
+    },
+    {
+      "email": "filipe.leite@comparaja.pt",
+      "nome": "Filipe Leite",
+      "fotoId": "1CMBYWturIq22Ens5FKGEViFxpEmWrN5k",
+      "fileName": "filipe-leite.png",
+      "path": "MKT",
+      "score": 100
+    },
+    {
+      "email": "giovana.dantas@comparaja.pt",
+      "nome": "Giovana Dantas",
+      "fotoId": "1CmE9HW1fzBzTmZt2pATluITkBP4TjdwV",
+      "fileName": "giovana-dantas.png",
+      "path": "HL/GC",
+      "score": 100
+    },
+    {
+      "email": "goncalo.cascais@comparaja.pt",
+      "nome": "Gonçalo Cascais",
+      "fotoId": "1TZfnNXE--VPxiHSaSCXyG9oHU9a4yXKD",
+      "fileName": "gonçalo-cascais.png",
+      "path": "HL/LPA",
+      "score": 100
+    },
+    {
+      "email": "ines.cristovao@comparaja.pt",
+      "nome": "Inês Cristóvão",
+      "fotoId": "1Jr_eBAyIXhk5hS4NeKLYKK-WAOuJKSDq",
+      "fileName": "ines-cristovao.png",
+      "path": "ENERGIA",
+      "score": 100
+    },
+    {
+      "email": "irene.silva@comparaja.pt",
+      "nome": "Irene Silva",
+      "fotoId": "1WY6FE-JPbPsBxOyPJIugjCx7nXkPU-kn",
+      "fileName": "irene-silva.png",
+      "path": "ENERGIA",
+      "score": 100
+    },
+    {
+      "email": "jessica.miranda@comparaja.pt",
+      "nome": "Jéssica Miranda",
+      "fotoId": "1EBWcDQI2uTRn6vtqJBbVEtS_swNo5CDb",
+      "fileName": "Jéssica Miranda.png",
+      "path": "HL/REAL ESTATE",
+      "score": 100
+    },
+    {
+      "email": "joana.silva@comparaja.pt",
+      "nome": "Joana Silva",
+      "fotoId": "15m0VVtkcfeNOxyZRE2K9GJWY0POyXtaC",
+      "fileName": "joana-silva.png",
+      "path": "HL/CONSULTORES",
+      "score": 100
+    },
+    {
+      "email": "joana.soares@comparaja.pt",
+      "nome": "Joana Soares",
+      "fotoId": "16TLSfygTd6eYLGwGwdBe6teEHTkLoyS5",
+      "fileName": "joana-soares.png",
+      "path": "HL/GC",
+      "score": 100
+    },
+    {
+      "email": "joao.andre@comparaja.pt",
+      "nome": "João André",
+      "fotoId": "10rWTibLTv9Hd-SsdbWAH8G86YpKCUHmc",
+      "fileName": "joao-andre.png",
+      "path": "HL/LPA",
+      "score": 100
+    },
+    {
+      "email": "joao.bastos@comparaja.pt",
+      "nome": "João Bastos",
+      "fotoId": "1XTIG8MK8zcj1-yvCOWtICohzR5_FmGDf",
+      "fileName": "joao-bastos.png",
+      "path": "SEGUROS",
+      "score": 100
+    },
+    {
+      "email": "joao.borges@comparaja.pt",
+      "nome": "João Borges",
+      "fotoId": "1xnT1YBNZThpWZVI9r7phU32GGcaYaQYn",
+      "fileName": "joao-borges.png",
+      "path": "PROD&TECH",
+      "score": 100
+    },
+    {
+      "email": "joao.rodrigues@comparaja.pt",
+      "nome": "João Rodrigues",
+      "fotoId": "1POdttURXQ5kaztjs5FiaDIJKQOWINsPF",
+      "fileName": "João Rodrigues.png",
+      "path": "PROD&TECH",
+      "score": 100
+    },
+    {
+      "email": "jorge.luis@comparaja.pt",
+      "nome": "Jorge Luís",
+      "fotoId": "1fPl5B3PieLKpWH_40y7ucYEulgwfNx5E",
+      "fileName": "jorge-luis.png",
+      "path": "HL/GC",
+      "score": 100
+    },
+    {
+      "email": "jorge.rebelo@comparaja.pt",
+      "nome": "Jorge Rebelo",
+      "fotoId": "1YcPcyJ2APZAPVuX0DOztSfKPe_hcs3Yj",
+      "fileName": "jorge-rebelo.png",
+      "path": "BB",
+      "score": 100
+    },
+    {
+      "email": "jose.silva@comparaja.pt",
+      "nome": "José Silva",
+      "fotoId": "1MZTxGPKFwNmPjQtlSRiizk9fT9ZN1QSA",
+      "fileName": "jose-silva.png",
+      "path": "HL/CONSULTORES",
+      "score": 100
+    },
+    {
+      "email": "leandro.teixeira@comparaja.pt",
+      "nome": "Leandro Teixeira",
+      "fotoId": "1jg9dLa20eh3ONVe89Da8ms2WUkgsd8nB",
+      "fileName": "leandro-teixeira.png",
+      "path": "ENERGIA",
+      "score": 100
+    },
+    {
+      "email": "leonor.santos@comparaja.pt",
+      "nome": "Leonor Santos",
+      "fotoId": "1L7yt-FuboVCRDQlCBYbPt0JyZb6vy7Y6",
+      "fileName": "leonor-santos.png",
+      "path": "HL/GC",
+      "score": 100
+    },
+    {
+      "email": "luis.nunes@comparaja.pt",
+      "nome": "Luís Nunes",
+      "fotoId": "1SzF4YP7lvWCKIHqNhAskvLncwTcVrjmI",
+      "fileName": "luis-nunes.png",
+      "path": "HEADS",
+      "score": 100
+    },
+    {
+      "email": "madalena.amorim@comparaja.pt",
+      "nome": "Madalena Amorim",
+      "fotoId": "11pNkHQDkDa2T-vpJWvN8QQtGe0uIYSim",
+      "fileName": "madalena-amorim.png",
+      "path": "ENERGIA",
+      "score": 100
+    },
+    {
+      "email": "mariana.morais@comparaja.pt",
+      "nome": "Mariana Morais",
+      "fotoId": "13nUH21TxfQqI03N7YLtl6q49WIX4-pWk",
+      "fileName": "mariana-morais.png",
+      "path": "HL/GC",
+      "score": 100
+    },
+    {
+      "email": "mariana.moura@comparaja.pt",
+      "nome": "Mariana Moura",
+      "fotoId": "1Cnzq4R-XOiJBfhKaweiYXQDxteMwlOHH",
+      "fileName": "mariana-moura.png",
+      "path": "SEGUROS",
+      "score": 100
+    },
+    {
+      "email": "martim.matos@comparaja.pt",
+      "nome": "Martim Matos",
+      "fotoId": "13SP232M75HNCwh8hJvqLiL-Cw9YIW9OA",
+      "fileName": "Martim Matos.png",
+      "path": "FINANCE",
+      "score": 100
+    },
+    {
+      "email": "melanie.rodrigues@comparaja.pt",
+      "nome": "Mélanie Rodrigues",
+      "fotoId": "1iIrFG12s0rxHLe-LnBogOUxDUZSr907T",
+      "fileName": "melanie-rodrigues.png",
+      "path": "PROD&TECH",
+      "score": 100
+    },
+    {
+      "email": "melanie.silva@comparaja.pt",
+      "nome": "Mélanie Silva",
+      "fotoId": "1bYqrDnuSMMIh_NbwLVK1BP6FvDsw9IVC",
+      "fileName": "melanie-silva.png",
+      "path": "ENERGIA",
+      "score": 100
+    },
+    {
+      "email": "michely.assuncao@comparaja.pt",
+      "nome": "Michely Assunção",
+      "fotoId": "1UpZ84zwfelX2LV0tJfdSuuKr5khJBYmx",
+      "fileName": "michely-assunçao.png",
+      "path": "ENERGIA",
+      "score": 100
+    },
+    {
+      "email": "monica.machado@comparaja.pt",
+      "nome": "Mónica Machado",
+      "fotoId": "12fz9YEas2nRtmxBZNMRFQZEkdB6wu7Mg",
+      "fileName": "monica-machado.png",
+      "path": "HL/CONSULTORES",
+      "score": 100
+    },
+    {
+      "email": "natalia.fanzeres@comparaja.pt",
+      "nome": "Natália Fanzeres",
+      "fotoId": "1u-JnPQiv93II34XDJiTBLnAe8pDmYM-_",
+      "fileName": "natalia-fanzeres.png",
+      "path": "MKT",
+      "score": 100
+    },
+    {
+      "email": "natalia.oliveira@comparaja.pt",
+      "nome": "Natália Oliveira",
+      "fotoId": "1W4QOuMHWGhuJKjrzX_gXmo_nAPqvWA2n",
+      "fileName": "Natália Oliveira.png",
+      "path": "ENERGIA",
+      "score": 100
+    },
+    {
+      "email": "neuza.borges@comparaja.pt",
+      "nome": "Neuza Borges",
+      "fotoId": "1saGMVwhcdtfTugCv4dmmYbKgIEO2plaC",
+      "fileName": "neuza-borges.png",
+      "path": "HL/GP",
+      "score": 100
+    },
+    {
+      "email": "nuno.conceicao@comparaja.pt",
+      "nome": "Nuno Conceição",
+      "fotoId": "1mH0JS8cOr2kCSQjfj54IVjQpzFQZnzmc",
+      "fileName": "Nuno Conceição.png",
+      "path": "SEGUROS",
+      "score": 100
+    },
+    {
+      "email": "patricia.lopes@comparaja.pt",
+      "nome": "Patrícia Lopes",
+      "fotoId": "1RtL4bD8eSj_KbdB4fZ37NvuWgB2qJeiY",
+      "fileName": "Patrícia Lopes.png",
+      "path": "SEGUROS",
+      "score": 100
+    },
+    {
+      "email": "paula.camocardi@comparaja.pt",
+      "nome": "Paula Camocardi",
+      "fotoId": "1k6qe6DR_EAKPVnkHwibyPqMB6Sz2UMan",
+      "fileName": "paula-camocardi.png",
+      "path": "HL/REAL ESTATE",
+      "score": 100
+    },
+    {
+      "email": "pedro.mendes@comparaja.pt",
+      "nome": "Pedro Mendes de Almeida",
+      "fotoId": "1-dfhvprrK0L3YMUPMzAsVXC1GMbBILpn",
+      "fileName": "Pedro Mendes de Almeida.png",
+      "path": "HL/REAL ESTATE",
+      "score": 100
+    },
+    {
+      "email": "pedro.neto@comparaja.pt",
+      "nome": "Pedro Neto",
+      "fotoId": "1NlYOFfajB43hJYmuHs4Kjg-dseF7-Vfx",
+      "fileName": "Pedro Neto.png",
+      "path": "HL/REAL ESTATE",
+      "score": 100
+    },
+    {
+      "email": "piera.borges@comparaja.pt",
+      "nome": "Piera Borges",
+      "fotoId": "1k-C1EPJxVPPrzPi6G6_HMpCQtQQebTss",
+      "fileName": "Piera Borges.png",
+      "path": "ENERGIA",
+      "score": 100
+    },
+    {
+      "email": "rafaela.alcantara@comparaja.pt",
+      "nome": "Rafaela Alcântara",
+      "fotoId": "1ss7exLs8RuSKEpAOK9d2lQFtuH6YPjJG",
+      "fileName": "rafaela-alcântara.png",
+      "path": "ENERGIA",
+      "score": 100
+    },
+    {
+      "email": "raquel.simoes@comparaja.pt",
+      "nome": "Raquel Simões",
+      "fotoId": "1jDlEUMoMo9zeo4XYBAlmBlN8lOnc9Sfo",
+      "fileName": "raquel-simoes.png",
+      "path": "ENERGIA",
+      "score": 100
+    },
+    {
+      "email": "ricardo.feferbaum@comparaja.pt",
+      "nome": "Ricardo Feferbaum",
+      "fotoId": "1-QwK6Tc4FvIZtbeia-muvnc-IbVvCWtP",
+      "fileName": "ricardo-feferbaum.png",
+      "path": "HEADS",
+      "score": 100
+    },
+    {
+      "email": "rita.silva@comparaja.pt",
+      "nome": "Rita Silva",
+      "fotoId": "1hoj8Lv26W14VOfUGLGe77b7zCH1N3Mbw",
+      "fileName": "rita-silva.png",
+      "path": "BB",
+      "score": 100
+    },
+    {
+      "email": "rita.sogalho@comparaja.pt",
+      "nome": "Rita Sogalho",
+      "fotoId": "1QTHXxj-GtuyBLSZyfHcVC8FLi0A7pr9-",
+      "fileName": "Rita Sogalho.png",
+      "path": "HL/CONSULTORES",
+      "score": 100
+    },
+    {
+      "email": "rodrigo.gameiro@comparaja.pt",
+      "nome": "Rodrigo Gameiro",
+      "fotoId": "1sB8jIKz9xs8EbD71I3CL1Xh-vQ6ApZnY",
+      "fileName": "rodrigo-gameiro.png",
+      "path": "PROD&TECH",
+      "score": 100
+    },
+    {
+      "email": "sara.correia@comparaja.pt",
+      "nome": "Sara Correia",
+      "fotoId": "1tj4mTYw3Ns5OVk14SP48e77OFdSDth5v",
+      "fileName": "sara-correia.png",
+      "path": "HL/LPA",
+      "score": 100
+    },
+    {
+      "email": "sara.henriques@comparaja.pt",
+      "nome": "Sara Henriques",
+      "fotoId": "13GLY8DiS-EOnjeQI37UZ-46Rih7bIDTe",
+      "fileName": "sara-henriques.png",
+      "path": "ENERGIA",
+      "score": 100
+    },
+    {
+      "email": "sofia.croft@comparaja.pt",
+      "nome": "Sofia Croft",
+      "fotoId": "1G1UsRwrG4BXJX7ReO7d2_sxp6-GjHvzK",
+      "fileName": "sofia-croft.png",
+      "path": "HR",
+      "score": 100
+    },
+    {
+      "email": "sophia.novoa@comparaja.pt",
+      "nome": "Sophia Nóvoa",
+      "fotoId": "1fsXlSQcitb20bdcyoIbLAz1mB2m7-1ME",
+      "fileName": "sophia-novoa.png",
+      "path": "HL/CONSULTORES",
+      "score": 100
+    },
+    {
+      "email": "stefany.mendes@comparaja.pt",
+      "nome": "Stefany Mendes",
+      "fotoId": "1UDAG_9iovUd84t6lEL4-GtLH-N3qks6t",
+      "fileName": "stefany-mendes.png",
+      "path": "ENERGIA",
+      "score": 100
+    },
+    {
+      "email": "susana.pedro@comparaja.pt",
+      "nome": "Susana Pedro",
+      "fotoId": "1HchLq2k82tIIphVknJOADgGeb0FQYUZR",
+      "fileName": "susana-pedro.png",
+      "path": "MKT",
+      "score": 100
+    },
+    {
+      "email": "tania.arraiolos@comparaja.pt",
+      "nome": "Tânia Arraiolos",
+      "fotoId": "1zTk9t9On7DANke5-u7D9ya1TOn0enwbE",
+      "fileName": "tania-arraiolos.png",
+      "path": "HL/LPA",
+      "score": 100
+    },
+    {
+      "email": "tania.barata@comparaja.pt",
+      "nome": "Tânia Barata",
+      "fotoId": "1lZERpozfZwzXFG4vOh1IwihZz7eFl7w0",
+      "fileName": "tania-barata.png",
+      "path": "HL/GP",
+      "score": 100
+    },
+    {
+      "email": "teresa.jorge@comparaja.pt",
+      "nome": "Teresa Jorge",
+      "fotoId": "1d5G2kiESaapnQt9mFKWRN5VFxUi55LNs",
+      "fileName": "teresa-jorge.png",
+      "path": "HL/CONSULTORES",
+      "score": 100
+    },
+    {
+      "email": "valeria.neta@comparaja.pt",
+      "nome": "Valéria Neta",
+      "fotoId": "1_nJ3GSFCZbloiR4QyfHeOQbAVTxA6gLH",
+      "fileName": "valéria-neta.png",
+      "path": "PROD&TECH",
+      "score": 100
+    },
+    {
+      "email": "vanessa.sanches@comparaja.pt",
+      "nome": "Vanessa Sanches",
+      "fotoId": "1C8bd-7tQYT2QdIbRVT_oINlrZdw1JXH_",
+      "fileName": "vanessa-sanches.png",
+      "path": "BB",
+      "score": 100
+    },
+    {
+      "email": "vania.alexandre@comparaja.pt",
+      "nome": "Vânia Alexandre",
+      "fotoId": "1Tv56fFmxCtGUYiUDJirEAEDL1YIh5Zmu",
+      "fileName": "vania-alexandre.png",
+      "path": "HL/GC",
+      "score": 100
+    },
+    {
+      "email": "wendy.lima@comparaja.pt",
+      "nome": "Wendy Lima",
+      "fotoId": "1HsbrJrkjQIcQ5svX4En58_VCeyw_lEer",
+      "fileName": "wendy-lima.png",
+      "path": "ENERGIA",
+      "score": 100
+    },
+    {
+      "email": "farid.mia@comparaja.pt",
+      "nome": "Farid Temporário",
+      "fotoId": "1-7hk2cM6MiNk1QCOGEDYyEW5BXD5-q8M",
+      "fileName": "farid-mia.png",
+      "path": "BB",
+      "score": 98
+    },
+    {
+      "email": "ines.ferreira@comparaja.pt",
+      "nome": "Inês Ferreira Várzea",
+      "fotoId": "1nuxHBllV8jcgJ7kISIulSnWOViudaFLL",
+      "fileName": "ines-ferreira.png",
+      "path": "HL/GC",
+      "score": 98
+    }
+  ],
+  "unmatchedPeople": [
+    {
+      "email": "agata.mendes@comparaja.pt",
+      "nome": "Ágata Mendes",
+      "cargo": "Crédito Habitação"
+    },
+    {
+      "email": "aneta.rafajlovska@comparaja.pt",
+      "nome": "Aneta Rafajlovska",
+      "cargo": "ComparaJá"
+    },
+    {
+      "email": "antonio.marques@comparaja.pt",
+      "nome": "António Marques",
+      "cargo": "Crédito Habitação"
+    },
+    {
+      "email": "bernardo.dias@comparaja.pt",
+      "nome": "Bernardo Dias",
+      "cargo": "ComparaJá"
+    },
+    {
+      "email": "bruna.passos@comparaja.pt",
+      "nome": "Bruna Passos",
+      "cargo": "Real Estate"
+    },
+    {
+      "email": "catarina.amorim@comparaja.pt",
+      "nome": "Catarina Amorim",
+      "cargo": "Real Estate"
+    },
+    {
+      "email": "claudia.fonseca@comparaja.pt",
+      "nome": "Cláudia Fonseca",
+      "cargo": "ComparaJá"
+    },
+    {
+      "email": "david.pedro@comparaja.pt",
+      "nome": "David Pedro",
+      "cargo": "Crédito Habitação"
+    },
+    {
+      "email": "dominykas.juodis@comparaja.pt",
+      "nome": "Dominykas Juodis",
+      "cargo": "Finance"
+    },
+    {
+      "email": "goncalo.monjardino@comparaja.pt",
+      "nome": "Gonçalo Monjardino",
+      "cargo": "Management Associate"
+    },
+    {
+      "email": "helio.alhada@comparaja.pt",
+      "nome": "Hélio Alhada",
+      "cargo": "Real Estate"
+    },
+    {
+      "email": "joao.silva@comparaja.pt",
+      "nome": "João Silva",
+      "cargo": "Real Estate"
+    },
+    {
+      "email": "leonardo.amorim@comparaja.pt",
+      "nome": "Leonardo Amorim",
+      "cargo": "Energia"
+    },
+    {
+      "email": "lourenco.parente@comparaja.pt",
+      "nome": "Lourenço Parente",
+      "cargo": "People & Culture"
+    },
+    {
+      "email": "madalena.alves@comparaja.pt",
+      "nome": "Madalena Alves",
+      "cargo": "Marketing"
+    },
+    {
+      "email": "marcio.pinheiro@comparaja.pt",
+      "nome": "Márcio Pinheiro",
+      "cargo": "Consultor"
+    },
+    {
+      "email": "maria.silva@comparaja.pt",
+      "nome": "Maria Silva",
+      "cargo": "ComparaJá"
+    },
+    {
+      "email": "mariana.lapas@comparaja.pt",
+      "nome": "Mariana Lapas",
+      "cargo": "Agente de Clientes"
+    },
+    {
+      "email": "martin@comparaja.pt",
+      "nome": "Martin F",
+      "cargo": "ComparaJá"
+    },
+    {
+      "email": "noelma.mendes@comparaja.pt",
+      "nome": "Noelma Mendes",
+      "cargo": "Crédito Habitação"
+    },
+    {
+      "email": "pedro.cruz@comparaja.pt",
+      "nome": "Pedro Cruz",
+      "cargo": "People & Culture"
+    },
+    {
+      "email": "rui.ventura@comparaja.pt",
+      "nome": "Rui Ventura",
+      "cargo": "Seguros"
+    },
+    {
+      "email": "valderene.almeida@comparaja.pt",
+      "nome": "Valderene Almeida",
+      "cargo": "Energia"
+    },
+    {
+      "email": "vera.luis@comparaja.pt",
+      "nome": "Vera Luís",
+      "cargo": "Crédito Habitação"
+    },
+    {
+      "email": "vera.peixoto@comparaja.pt",
+      "nome": "Vera Peixoto",
+      "cargo": "ComparaJá"
+    },
+    {
+      "email": "filipa.lobo@comparaja.pt",
+      "nome": "Filipa Lobo",
+      "cargo": "Gestora HL"
+    },
+    {
+      "email": "joao.martins@comparaja.pt",
+      "nome": "João Martins",
+      "cargo": "Management Associate"
+    },
+    {
+      "email": "jose.freitas@comparaja.pt",
+      "nome": "José Freitas",
+      "cargo": "Management Associate"
+    },
+    {
+      "email": "pedro.rodrigues@comparaja.pt",
+      "nome": "Pedro Rodrigues",
+      "cargo": "Gestor de Cliente"
+    }
+  ],
+  "unmatchedFiles": [
+    {
+      "id": "1vFq9Q6cFyl78OPvFlxK7tTjn-82aJnck",
+      "name": "google_image.png",
+      "path": ""
+    },
+    {
+      "id": "1-E2gvAr-kHhi-m37m3mZxrX5kWCwGzC4",
+      "name": "leonor-wilson.png",
+      "path": "BUSINESS"
+    },
+    {
+      "id": "1ec-jSSJtvQvvk5F7Pu2OIXLfptRZaiN0",
+      "name": "ana-sofia-silva-2.png",
+      "path": "ENERGIA"
+    },
+    {
+      "id": "1aIBXvbVfjKZjOZ4Wu5IjAAYf-Ns3EYgn",
+      "name": "ana-tomé.png",
+      "path": "ENERGIA"
+    },
+    {
+      "id": "1LBoD5BMZgtKkV26nFXdpCfjB9ZAJR4pc",
+      "name": "Bruna Jesus.png",
+      "path": "ENERGIA"
+    },
+    {
+      "id": "1lzQP2Es-DXm9qozgyMMMBmjznSLqDgte",
+      "name": "Copy of adryana-mayara.png",
+      "path": "ENERGIA"
+    },
+    {
+      "id": "11OdEdRqRaKZ8xesdkUSsjBOzTRhVbQ_e",
+      "name": "douglas-freitas.png",
+      "path": "ENERGIA"
+    },
+    {
+      "id": "1d9f8Teeoj97lqdsTxJVcvQm6P1ufsqeY",
+      "name": "Thaynná Albuquerque.png",
+      "path": "ENERGIA"
+    },
+    {
+      "id": "1-3SSYZJEIhIQrwQOh56RJ4j2bUl9TMfT",
+      "name": "jose-trovao.png",
+      "path": "HEADS"
+    },
+    {
+      "id": "1JJJpCIb6clq-650Sg956lOzd2yDIS-Sq",
+      "name": "Bárbara Silva.png",
+      "path": "HL/CONSULTORES"
+    },
+    {
+      "id": "1-ufto-F42i-wWj4IVjHpLULjI9yubqXO",
+      "name": "Catarina Silvestre.png",
+      "path": "HL/CONSULTORES"
+    },
+    {
+      "id": "1zowDSgGQ6Hu3UmOYUxVJsQ48z8GNIUMM",
+      "name": "Pedro Lourenço.png",
+      "path": "HL/CONSULTORES"
+    },
+    {
+      "id": "13HbdmTwAvMWJy0t-phsHCgB1GskNTufM",
+      "name": "rita-sogalho.png",
+      "path": "HL/CONSULTORES"
+    },
+    {
+      "id": "1S_h02wngXZvRyOCNJH06WUEtDz9BPpHs",
+      "name": "talita-batista.png",
+      "path": "HL/CONSULTORES"
+    },
+    {
+      "id": "12MK9nAb7WznOu8prs3g6J-DcUF9oMnH2",
+      "name": "vera-silva.png",
+      "path": "HL/CONSULTORES"
+    },
+    {
+      "id": "1g2IBksAGMI8uHFyGT66h5wJ1T1RJvYfl",
+      "name": "catia-gouveia.png",
+      "path": "HL/GC"
+    },
+    {
+      "id": "1LA5HqzwCmy7dJMLw0p0ucVaatswbhLFB",
+      "name": "ines-ferreira-2.png",
+      "path": "HL/GC"
+    },
+    {
+      "id": "10_CS5NWeLRBvscKhr4XYfgwqiop3zMsN",
+      "name": "joana-soares-1.png",
+      "path": "HL/GC"
+    },
+    {
+      "id": "14F0TQzV6ahd5dHDWx8qsouO-1w5wFJ4a",
+      "name": "joana-soares-2.png",
+      "path": "HL/GC"
+    },
+    {
+      "id": "149s7opRDZrJsf-ymDnVaCbDxv6p5EPT2",
+      "name": "mafalda-soares-1.png",
+      "path": "HL/GC"
+    },
+    {
+      "id": "1Cbl85ckwiFHBVlN6izWI7DeVyMhhaHPS",
+      "name": "joao-pedro-silva-2.png",
+      "path": "HL/GP"
+    },
+    {
+      "id": "1HYtSNWA1AkcSS8iCSorRsGnyZjNn0qJl",
+      "name": "joao-pedro-silva.png",
+      "path": "HL/GP"
+    },
+    {
+      "id": "10xG_QiSWE9YbYKsDeXIPOGu5byfNN8M8",
+      "name": "catia-lourenco-2.png",
+      "path": "HL/LPA"
+    },
+    {
+      "id": "1ue0QDnN1A6TNMryXEECY1y5gpk08kFke",
+      "name": "catia-lourenço-3.png",
+      "path": "HL/LPA"
+    },
+    {
+      "id": "14I0xpFFDQEiuwMJ10D1S9SLKz-2xMfei",
+      "name": "gonçalo-cascais.png",
+      "path": "HL/LPA"
+    },
+    {
+      "id": "1jv_e5wUKQMyqe_erWtxuAPH_SSauqSZ6",
+      "name": "joao-andre.png",
+      "path": "HL/LPA"
+    },
+    {
+      "id": "1eCQa7GU40IU7NoxjiGlF-rSWndt07XgP",
+      "name": "cristina.png",
+      "path": "HL/REAL ESTATE"
+    },
+    {
+      "id": "1GEGPHPtUgBHSuRUS9sPCRElTLt8pUj89",
+      "name": "paula-camocardi-2.png",
+      "path": "HL/REAL ESTATE"
+    },
+    {
+      "id": "1p04N_3yFRmW2GI0wHsNk24S08janJFNL",
+      "name": "Thalita Cristina.png",
+      "path": "HL/REAL ESTATE"
+    },
+    {
+      "id": "10dtIb8CnW-t8NI-MjbxGuInjdiTpZQGA",
+      "name": "8.png",
+      "path": "MKT"
+    },
+    {
+      "id": "10IUQSg1RJ-W5ZPjTSdCjo3q6hB8CcwcB",
+      "name": "filipe-leite-2.png",
+      "path": "MKT"
+    },
+    {
+      "id": "1T2hMcnTjdaUuUMXt7ieSNTk8AhNBymao",
+      "name": "rodrigo-alarcao.png",
+      "path": "PROD&TECH"
+    },
+    {
+      "id": "1QuV5tusZe49l84Rr7BHnDMdb4_i5QZLQ",
+      "name": "Copy of Arthur Almeida.png",
+      "path": "SEGUROS"
+    },
+    {
+      "id": "1JEuoLALlCp9LE8sPEW-WwaumBoianyH9",
+      "name": "Copy of caroline-moraes.png",
+      "path": "SEGUROS"
+    },
+    {
+      "id": "1mOW7IBuMCCAtHBKYgSlF840EE_5Zv55w",
+      "name": "Copy of catarina-cota.png",
+      "path": "SEGUROS"
+    },
+    {
+      "id": "1cH8PETliOdLAvhN19yF2m8XKc0hkFRNF",
+      "name": "Copy of joao-bastos.png",
+      "path": "SEGUROS"
+    },
+    {
+      "id": "1qEKLdHkGp2mVRf735JleKu-Hf2yMnukD",
+      "name": "Copy of mariana-moura.png",
+      "path": "SEGUROS"
+    },
+    {
+      "id": "1DOnXiC16Q3qZwezjfz2I8Nk-_fBQJh41",
+      "name": "Copy of Miguel Coelho.png",
+      "path": "SEGUROS"
+    },
+    {
+      "id": "1_Mw34Wa6nK6rejgQkOjfR-Hiu1FGAZPp",
+      "name": "Copy of Nuno Conceição.png",
+      "path": "SEGUROS"
+    },
+    {
+      "id": "1j14Vm01KKWjXT5sV93LD2duZ9WXAr1Ag",
+      "name": "Copy of Patrícia Lopes.png",
+      "path": "SEGUROS"
+    },
+    {
+      "id": "1L83mmZJ-PLoDJ-718TRA-btv164pAPhW",
+      "name": "mafalda.png",
+      "path": "SEGUROS"
+    },
+    {
+      "id": "1XERBsziwIavij05Zqhypei_piicrVC5D",
+      "name": "Miguel Coelho.png",
+      "path": "SEGUROS"
+    }
+  ]
+}
