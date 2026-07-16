@@ -2,11 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { CompanySettings, Person } from "@/lib/types";
+import { uiPhotoSrc } from "@/lib/photos";
 
 const emptyPerson = {
   name: "",
   title: "",
   email: "",
+  phone: "",
   photoUrl: "",
   active: true,
 };
@@ -143,6 +145,7 @@ export function AdminPanel({
       name: person.name,
       title: person.title,
       email: person.email || "",
+      phone: person.phone || "",
       photoUrl: person.photoUrl,
       active: person.active,
     });
@@ -244,6 +247,15 @@ export function AdminPanel({
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                 />
               </label>
+              <label className="cj-field">
+                <span>Telemóvel (opcional)</span>
+                <input
+                  className="cj-input"
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                  placeholder="+351 9XX XXX XXX"
+                />
+              </label>
               <label className="flex items-end gap-2 pb-2 text-sm">
                 <input
                   type="checkbox"
@@ -308,9 +320,10 @@ export function AdminPanel({
                       <td className="admin-col-photo">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                          src={person.photoUrl}
+                          src={uiPhotoSrc(person.photoUrl)}
                           alt=""
                           className="admin-person-avatar"
+                          referrerPolicy="no-referrer"
                         />
                       </td>
                       <td className="font-semibold text-[var(--ink)]">

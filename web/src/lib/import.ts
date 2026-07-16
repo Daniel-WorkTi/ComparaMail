@@ -5,6 +5,7 @@ export type ImportRow = {
   name: string;
   title: string;
   photo: string;
+  phone: string;
 };
 
 /** Converte URL do Drive, ID, ou URL direta para link usável na assinatura. */
@@ -52,6 +53,14 @@ export function parseCsv(text: string): ImportRow[] {
     email: findCol(header, ["email", "e-mail", "correio"]),
     name: findCol(header, ["name", "nome"]),
     title: findCol(header, ["title", "cargo", "funcao", "função"]),
+    phone: findCol(header, [
+      "phone",
+      "telefone",
+      "telemovel",
+      "telemóvel",
+      "mobile",
+      "tel",
+    ]),
     photo: findCol(header, [
       "photo",
       "foto",
@@ -81,6 +90,7 @@ export function parseCsv(text: string): ImportRow[] {
       name,
       title,
       photo: idx.photo >= 0 ? cols[idx.photo]?.trim() || "" : "",
+      phone: idx.phone >= 0 ? cols[idx.phone]?.trim() || "" : "",
     });
   }
   return rows;
@@ -130,6 +140,7 @@ export function rowToPersonInput(
     name: row.name,
     title: row.title,
     email: row.email,
+    phone: row.phone || undefined,
     photoUrl,
     active: true,
   };
@@ -169,6 +180,7 @@ export function mergeImport(
         name: input.name,
         title: input.title,
         email: input.email || people[existingIdx].email,
+        phone: input.phone || people[existingIdx].phone,
         photoUrl: input.photoUrl,
         active: true,
         updatedAt: now,
@@ -197,6 +209,7 @@ export function mergeImport(
       name: input.name,
       title: input.title,
       email: input.email || "",
+      phone: input.phone || "",
       photoUrl: input.photoUrl,
       active: true,
       createdAt: now,

@@ -26,6 +26,19 @@ export async function listPeople(includeInactive = false): Promise<Person[]> {
   return includeInactive ? people : people.filter((p) => p.active);
 }
 
+/** Lista visível: admin vê todos; resto só a própria ficha. */
+export async function listPeopleForViewer(options: {
+  isAdmin: boolean;
+  viewerEmail?: string | null;
+  includeInactive?: boolean;
+}): Promise<Person[]> {
+  const all = await listPeople(options.includeInactive ?? false);
+  if (options.isAdmin) return all;
+  const email = (options.viewerEmail || "").toLowerCase().trim();
+  if (!email) return [];
+  return all.filter((p) => (p.email || "").toLowerCase() === email);
+}
+
 export async function getPersonBySlug(slug: string): Promise<Person | null> {
   const store = await getStore();
   return store.people.find((p) => p.slug === slug && p.active) || null;
@@ -63,6 +76,7 @@ export async function createPerson(input: PersonInput): Promise<Person> {
     name: input.name.trim(),
     title: input.title.trim(),
     email: input.email?.trim() || "",
+    phone: input.phone?.trim() || "",
     photoUrl: input.photoUrl.trim(),
     active: input.active ?? true,
     createdAt: now,
@@ -87,6 +101,7 @@ export async function updatePerson(id: string, input: Partial<PersonInput>): Pro
     name: nextName,
     title: input.title?.trim() ?? current.title,
     email: input.email !== undefined ? input.email.trim() : current.email,
+    phone: input.phone !== undefined ? input.phone.trim() : current.phone,
     photoUrl: input.photoUrl?.trim() ?? current.photoUrl,
     slug:
       input.slug !== undefined || input.name !== undefined

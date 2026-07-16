@@ -170,17 +170,14 @@ export function GmailInstallGuide({ source = "header" }: Props) {
         >
           Anterior
         </button>
-        {!isLast ? (
-          <button
-            type="button"
-            className="gmail-guide-nav-btn gmail-guide-nav-primary"
-            onClick={() => setIndex((i) => Math.min(total - 1, i + 1))}
-          >
-            Seguinte
-          </button>
-        ) : (
-          <span className="gmail-guide-done">Tudo pronto ✓</span>
-        )}
+        <button
+          type="button"
+          className="gmail-guide-nav-btn gmail-guide-nav-primary"
+          disabled={isLast}
+          onClick={() => setIndex((i) => Math.min(total - 1, i + 1))}
+        >
+          Seguinte
+        </button>
       </div>
     </div>
   );

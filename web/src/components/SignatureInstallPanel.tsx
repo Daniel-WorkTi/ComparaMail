@@ -226,13 +226,6 @@ export function SignatureInstallPanel({
               </div>
               <p className="home-modal-lede">Seis passos até a assinatura ativa no Gmail.</p>
               <GmailInstallGuide source="page" />
-              <button
-                type="button"
-                className="home-modal-close"
-                onClick={() => setGuideOpen(false)}
-              >
-                Entendi
-              </button>
             </div>
           </div>,
           document.body,

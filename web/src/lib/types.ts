@@ -4,6 +4,7 @@ export type Person = {
   name: string;
   title: string;
   email?: string;
+  phone?: string;
   photoUrl: string;
   active: boolean;
   createdAt: string;
@@ -32,6 +33,7 @@ export type PersonInput = {
   name: string;
   title: string;
   email?: string;
+  phone?: string;
   photoUrl: string;
   slug?: string;
   active?: boolean;

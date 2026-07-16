@@ -5,8 +5,13 @@ import { AppFooter } from "@/components/AppFooter";
 import { HomeHeader } from "@/components/HomeHeader";
 import { SignatureInstallPanel } from "@/components/SignatureInstallPanel";
 import { SignaturePreview } from "@/components/SignaturePreview";
-import { isAdminUser, isAuthenticated } from "@/lib/auth";
-import { getPersonBySlug, getSettings, listPeople } from "@/lib/people";
+import {
+  canAccessPersonEmail,
+  isAdminUser,
+  isAuthenticated,
+} from "@/lib/auth";
+import { getPersonByEmail, getPersonBySlug, getSettings } from "@/lib/people";
+import { resolveAppOrigin } from "@/lib/origin";
 import { renderSignatureHtml } from "@/lib/template";
 
 export const dynamic = "force-dynamic";
@@ -19,21 +24,25 @@ export default async function SignaturePage({ params }: Props) {
   }
 
   const { slug } = await params;
+  if (!/^[a-z0-9-]{1,120}$/.test(slug)) notFound();
+
   const person = await getPersonBySlug(slug);
   if (!person) notFound();
 
-  const [settings, session, isAdmin, people] = await Promise.all([
+  if (!(await canAccessPersonEmail(person.email))) {
+    notFound();
+  }
+
+  const [settings, session, isAdmin, origin] = await Promise.all([
     getSettings(),
     auth(),
     isAdminUser(),
-    listPeople(false),
+    resolveAppOrigin(),
   ]);
-  const html = renderSignatureHtml(person, settings);
+  const html = renderSignatureHtml(person, settings, { origin });
 
   const email = session?.user?.email?.toLowerCase() || "";
-  const mySignature = email
-    ? people.find((p) => (p.email || "").toLowerCase() === email)
-    : undefined;
+  const mySignature = email ? await getPersonByEmail(email) : null;
   const userName =
     session?.user?.name || mySignature?.name || (email ? email.split("@")[0] : "Utilizador");
   const userPhoto = mySignature?.photoUrl || session?.user?.image || undefined;
@@ -46,6 +55,7 @@ export default async function SignaturePage({ params }: Props) {
         userName={userName}
         userEmail={email || session?.user?.email || ""}
         userPhoto={userPhoto}
+        mySlug={mySignature?.slug}
       />
 
       <div className="sig-wrap">
