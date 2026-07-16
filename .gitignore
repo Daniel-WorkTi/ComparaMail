@@ -1,0 +1,29 @@
+# Ambiente / segredos — nunca commitar
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Dependências e build
+node_modules/
+web/node_modules/
+web/.next/
+web/out/
+web/.vercel/
+*.tsbuildinfo
+
+# SO / IDE
+.DS_Store
+Thumbs.db
+*.pem
+
+# Artefactos locais de debug Drive (IDs / HTML)
+drive_folder.html
+scripts/drive_folder.html
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
