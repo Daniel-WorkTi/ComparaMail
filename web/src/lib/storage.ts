@@ -1,18 +1,44 @@
 import { readFile, writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { get, list, put } from "@vercel/blob";
-import type { StoreData } from "./types";
+import type { CompanySettings, StoreData } from "./types";
 
 const BLOB_NAME = "assinaturas-data.json";
 const LOCAL_PATH = path.join(process.cwd(), "data", "people.json");
+
+const DEFAULT_SETTINGS: CompanySettings = {
+  logoUrl: "",
+  website: "https://www.comparaja.pt",
+  websiteLabel: "www.comparaja.pt",
+  address: "Praça de Alvalade 6, 6º F, 1700-036 Lisboa",
+  addressMapsUrl:
+    "https://maps.google.com/?q=Praça de Alvalade 6, 6º F, 1700-036 Lisboa",
+  companyName: "ComparaJá",
+  brandColor: "#45668E",
+  instagramUrl: "https://instagram.com/comparaja",
+  facebookUrl: "https://www.facebook.com/ComparaJa",
+  linkedinUrl: "https://www.linkedin.com/company/compara-ja/",
+};
+
+function emptyStore(): StoreData {
+  return {
+    settings: { ...DEFAULT_SETTINGS },
+    people: [],
+  };
+}
 
 function hasBlob(): boolean {
   return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 }
 
 async function readSeed(): Promise<StoreData> {
-  const raw = await readFile(LOCAL_PATH, "utf8");
-  return JSON.parse(raw) as StoreData;
+  try {
+    const raw = await readFile(LOCAL_PATH, "utf8");
+    return JSON.parse(raw) as StoreData;
+  } catch {
+    // Em Vercel o ficheiro local não existe (PII fora do git) — arranque vazio
+    return emptyStore();
+  }
 }
 
 async function parseJsonStream(stream: ReadableStream<Uint8Array>): Promise<StoreData> {
@@ -63,7 +89,6 @@ export async function saveStore(data: StoreData): Promise<void> {
   const payload = JSON.stringify(data, null, 2);
 
   if (hasBlob()) {
-    // Privado: não fica URL pública com emails/fotos da equipa
     await put(BLOB_NAME, payload, {
       access: "private",
       contentType: "application/json",

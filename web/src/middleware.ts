@@ -15,10 +15,12 @@ export function middleware(request: NextRequest) {
   }
 
   // AUTH_URL obrigatório em produção (anti Host-header poisoning)
+  // VERCEL_URL é definido pela plataforma e é fiável como fallback
   if (
     isProductionRuntime() &&
     !process.env.AUTH_URL &&
-    !process.env.NEXTAUTH_URL
+    !process.env.NEXTAUTH_URL &&
+    !process.env.VERCEL_URL
   ) {
     return new NextResponse(
       "AUTH_URL (ou NEXTAUTH_URL) é obrigatório em produção.",
