@@ -5,13 +5,16 @@ import { escapeHtml, safeHref } from "./security";
 export function renderSignatureHtml(
   person: Person,
   settings: CompanySettings,
-  options?: { origin?: string },
+  options?: { origin?: string; mode?: "email" | "preview" },
 ): string {
   const name = escapeHtml(person.name);
   const title = escapeHtml(person.title);
   const brand = escapeHtml(settings.brandColor || "#45668E");
-  const logo = escapeHtml(emailPhotoSrc(settings.logoUrl, options?.origin));
-  const photo = escapeHtml(emailPhotoSrc(person.photoUrl, options?.origin));
+  // Preview: URLs relativas assinadas (mesmo host). Email: absolutas com origin.
+  const photoOrigin =
+    options?.mode === "preview" ? undefined : options?.origin;
+  const logo = escapeHtml(emailPhotoSrc(settings.logoUrl, photoOrigin));
+  const photo = escapeHtml(emailPhotoSrc(person.photoUrl, photoOrigin));
   const website = escapeHtml(safeHref(settings.website, ["https:", "http:"]));
   const websiteLabel = escapeHtml(settings.websiteLabel);
   const address = escapeHtml(settings.address);
@@ -30,11 +33,12 @@ export function renderSignatureHtml(
   const mailtoHref = email
     ? escapeHtml(safeHref(`mailto:${email}`, ["mailto:"]))
     : "";
+  const legalBase = (
+    options?.origin ||
+    "https://www.comparaja.pt"
+  ).replace(/\/$/, "");
   const legalUrl = escapeHtml(
-    safeHref(
-      `${(options?.origin || "https://www.comparaja.pt").replace(/\/$/, "")}/aviso-legal`,
-      ["https:", "http:"],
-    ),
+    safeHref(`${legalBase}/aviso-legal`, ["https:", "http:"]),
   );
 
   const contactRows: string[] = [];

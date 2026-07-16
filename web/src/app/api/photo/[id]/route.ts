@@ -43,7 +43,15 @@ export async function GET(request: Request, { params }: Params) {
   const exp = Number(url.searchParams.get("e") || "");
   const sig = url.searchParams.get("s");
   const signedOk = verifyPhotoToken(id, exp, sig);
-  const authed = signedOk ? false : await isAuthenticated();
+
+  let authed = false;
+  if (!signedOk) {
+    try {
+      authed = await isAuthenticated();
+    } catch {
+      authed = false;
+    }
+  }
 
   if (!signedOk && !authed) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });

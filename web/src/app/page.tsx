@@ -5,6 +5,7 @@ import { HomeHeader } from "@/components/HomeHeader";
 import { PeopleDirectory } from "@/components/PeopleDirectory";
 import { isAdminUser, isAuthenticated } from "@/lib/auth";
 import { listPeopleForViewer } from "@/lib/people";
+import { signedUiPhotoSrc } from "@/lib/photos";
 
 export const dynamic = "force-dynamic";
 
@@ -19,19 +20,25 @@ export default async function HomePage({ searchParams }: Props) {
 
   const [session, isAdmin] = await Promise.all([auth(), isAdminUser()]);
   const email = session?.user?.email?.toLowerCase() || "";
-  const people = await listPeopleForViewer({
+  const peopleRaw = await listPeopleForViewer({
     isAdmin,
     viewerEmail: email,
   });
+  const people = peopleRaw.map((p) => ({
+    ...p,
+    photoUrl: signedUiPhotoSrc(p.photoUrl) || p.photoUrl,
+  }));
 
   const params = await searchParams;
   const mySignature = email
-    ? people.find((p) => (p.email || "").toLowerCase() === email)
+    ? peopleRaw.find((p) => (p.email || "").toLowerCase() === email)
     : undefined;
 
   const userName =
     session?.user?.name || mySignature?.name || (email ? email.split("@")[0] : "Utilizador");
-  const userPhoto = mySignature?.photoUrl || session?.user?.image || undefined;
+  const userPhoto = mySignature
+    ? signedUiPhotoSrc(mySignature.photoUrl) || session?.user?.image || undefined
+    : session?.user?.image || undefined;
 
   return (
     <div className="home-page">

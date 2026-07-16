@@ -12,6 +12,7 @@ import {
 } from "@/lib/auth";
 import { getPersonByEmail, getPersonBySlug, getSettings } from "@/lib/people";
 import { resolveAppOrigin } from "@/lib/origin";
+import { signedUiPhotoSrc } from "@/lib/photos";
 import { renderSignatureHtml } from "@/lib/template";
 
 export const dynamic = "force-dynamic";
@@ -39,13 +40,22 @@ export default async function SignaturePage({ params }: Props) {
     isAdminUser(),
     resolveAppOrigin(),
   ]);
-  const html = renderSignatureHtml(person, settings, { origin });
+  const previewHtml = renderSignatureHtml(person, settings, {
+    origin,
+    mode: "preview",
+  });
+  const emailHtml = renderSignatureHtml(person, settings, {
+    origin,
+    mode: "email",
+  });
 
   const email = session?.user?.email?.toLowerCase() || "";
   const mySignature = email ? await getPersonByEmail(email) : null;
   const userName =
     session?.user?.name || mySignature?.name || (email ? email.split("@")[0] : "Utilizador");
-  const userPhoto = mySignature?.photoUrl || session?.user?.image || undefined;
+  const userPhoto = mySignature
+    ? signedUiPhotoSrc(mySignature.photoUrl) || session?.user?.image || undefined
+    : session?.user?.image || undefined;
 
   return (
     <div className="home-page">
@@ -71,7 +81,7 @@ export default async function SignaturePage({ params }: Props) {
         </header>
 
         <div className="sig-grid">
-          <SignatureInstallPanel html={html} slug={person.slug} />
+          <SignatureInstallPanel html={emailHtml} slug={person.slug} />
 
           <section className="sig-preview-card">
             <div className="sig-preview-head">
@@ -80,7 +90,7 @@ export default async function SignaturePage({ params }: Props) {
             </div>
 
             <div className="sig-preview-frame">
-              <SignaturePreview html={html} />
+              <SignaturePreview html={previewHtml} />
             </div>
 
             <div className="sig-tip">
