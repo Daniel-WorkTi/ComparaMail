@@ -1,6 +1,7 @@
 import { googleReady, signIn } from "@/auth";
 import { hasAccessPassword, isSignaturesPublic } from "@/lib/access";
 import { isAuthenticated } from "@/lib/auth";
+import { safeRedirectPath } from "@/lib/security";
 import { redirect } from "next/navigation";
 import { PasswordLoginForm } from "@/components/PasswordLoginForm";
 
@@ -83,7 +84,9 @@ export default async function LoginPage({ searchParams }: Props) {
               <form
                 action={async () => {
                   "use server";
-                  await signIn("google", { redirectTo: params.callbackUrl || "/" });
+                  await signIn("google", {
+                    redirectTo: safeRedirectPath(params.callbackUrl),
+                  });
                 }}
               >
                 <button type="submit" className="login-btn-google">

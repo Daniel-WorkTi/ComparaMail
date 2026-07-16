@@ -4,7 +4,7 @@ import { AppFooter } from "@/components/AppFooter";
 import { HomeHeader } from "@/components/HomeHeader";
 import { PeopleDirectory } from "@/components/PeopleDirectory";
 import { isAdminUser, isAuthenticated } from "@/lib/auth";
-import { listPeople } from "@/lib/people";
+import { listPeopleForViewer } from "@/lib/people";
 
 export const dynamic = "force-dynamic";
 
@@ -17,14 +17,14 @@ export default async function HomePage({ searchParams }: Props) {
     redirect("/login");
   }
 
-  const [people, session, isAdmin] = await Promise.all([
-    listPeople(false),
-    auth(),
-    isAdminUser(),
-  ]);
+  const [session, isAdmin] = await Promise.all([auth(), isAdminUser()]);
+  const email = session?.user?.email?.toLowerCase() || "";
+  const people = await listPeopleForViewer({
+    isAdmin,
+    viewerEmail: email,
+  });
 
   const params = await searchParams;
-  const email = session?.user?.email?.toLowerCase() || "";
   const mySignature = email
     ? people.find((p) => (p.email || "").toLowerCase() === email)
     : undefined;
@@ -41,6 +41,7 @@ export default async function HomePage({ searchParams }: Props) {
         userName={userName}
         userEmail={email || session?.user?.email || ""}
         userPhoto={userPhoto}
+        mySlug={mySignature?.slug}
       />
 
       <main className="home-main">
@@ -54,12 +55,17 @@ export default async function HomePage({ searchParams }: Props) {
           <p className="home-kicker">ComparaJá · Equipa</p>
           <h1>Assinaturas de email</h1>
           <p className="home-lede">
-            Encontra a assinatura oficial de qualquer pessoa da equipa e copia-a diretamente para o
-            Gmail.
+            {isAdmin
+              ? "Encontra a assinatura oficial de qualquer pessoa da equipa e copia-a diretamente para o Gmail."
+              : "Acede à tua assinatura oficial e copia-a diretamente para o Gmail."}
           </p>
         </header>
 
-        <PeopleDirectory people={people} mySlug={mySignature?.slug} />
+        <PeopleDirectory
+          people={people}
+          mySlug={mySignature?.slug}
+          showEmail={isAdmin}
+        />
         <AppFooter />
       </main>
     </div>

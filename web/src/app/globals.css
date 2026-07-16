@@ -296,11 +296,15 @@ a {
   display: block;
   width: 2.5rem;
   height: 2.5rem;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
   border-radius: 999px;
   object-fit: cover;
+  object-position: center;
   border: 2px solid #fff;
   box-shadow: 0 0 0 1px #d7e0ea;
   background: #eef3f8;
+  flex-shrink: 0;
 }
 
 .admin-row-actions {
@@ -681,8 +685,11 @@ body:has(.login-page) {
 .home-user-fallback {
   width: 2.5rem;
   height: 2.5rem;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
   border-radius: 999px;
   object-fit: cover;
+  flex-shrink: 0;
 }
 
 .home-user-fallback {
@@ -741,7 +748,7 @@ body:has(.login-page) {
   position: absolute;
   right: 0;
   top: calc(100% + 0.35rem);
-  min-width: 10rem;
+  min-width: 12rem;
   border: 1px solid #e5ebf2;
   border-radius: 0.65rem;
   background: #fff;
@@ -750,7 +757,9 @@ body:has(.login-page) {
   z-index: 50;
 }
 
-.home-user-menu button {
+.home-user-menu button,
+.home-user-menu-link {
+  display: block;
   width: 100%;
   border: 0;
   background: transparent;
@@ -762,9 +771,12 @@ body:has(.login-page) {
   font-weight: 600;
   color: #243b5c;
   cursor: pointer;
+  text-decoration: none;
+  box-sizing: border-box;
 }
 
-.home-user-menu button:hover {
+.home-user-menu button:hover,
+.home-user-menu-link:hover {
   background: #eef3f8;
 }
 
@@ -968,12 +980,15 @@ body:has(.login-page) {
 }
 
 .home-row-avatar {
-  width: 2.6rem;
-  height: 2.6rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
   border-radius: 999px;
   object-fit: cover;
+  object-position: center;
   flex-shrink: 0;
-  background: transparent;
+  background: #eef3f8;
 }
 
 .home-row-name-line {
@@ -1522,6 +1537,10 @@ body:has(.login-page) {
   overflow: hidden;
   border: 1px solid #e4e9f0;
   background: #f3f6f9;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .gmail-guide-figures {
@@ -1530,18 +1549,20 @@ body:has(.login-page) {
   gap: 0.65rem;
 }
 
-.gmail-guide-figures.is-multi .gmail-guide-figure:first-child img {
-  max-height: 72px;
-  width: auto;
-  max-width: 100%;
-  margin-inline: auto;
-  object-fit: contain;
+.gmail-guide-figures.is-multi .gmail-guide-figure {
+  height: 120px;
+}
+
+.gmail-guide-figures.is-multi .gmail-guide-figure:first-child {
+  height: 72px;
 }
 
 .gmail-guide-figure img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
 }
 
 .gmail-guide-nav {
@@ -1648,4 +1669,70 @@ body:has(.login-page) {
 
 .sig-preview-html {
   overflow-x: auto;
+}
+
+/* —— Aviso legal (público) —— */
+.legal-page {
+  min-height: 100dvh;
+  background: #f3f6f9;
+  color: #1a2940;
+}
+
+.legal-wrap {
+  width: min(680px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0 3rem;
+}
+
+.legal-brand {
+  display: inline-flex;
+  margin-bottom: 1.5rem;
+}
+
+.legal-wrap h1 {
+  margin: 0 0 1.25rem;
+  font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #0d1b3e;
+}
+
+.legal-body {
+  background: #fff;
+  border: 1px solid #e5ebf2;
+  border-radius: 1rem;
+  padding: 1.25rem 1.35rem;
+  box-shadow: 0 8px 28px -18px rgba(15, 28, 48, 0.35);
+}
+
+.legal-body p {
+  margin: 0 0 1rem;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: #3d4d63;
+}
+
+.legal-body p:last-child {
+  margin-bottom: 0;
+}
+
+.legal-body a {
+  color: #45668e;
+  font-weight: 650;
+  text-decoration: underline;
+}
+
+.legal-back {
+  margin: 1.5rem 0 0;
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.legal-back a {
+  color: #45668e;
+  text-decoration: none;
+}
+
+.legal-back a:hover {
+  text-decoration: underline;
 }

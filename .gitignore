@@ -27,3 +27,6 @@ scripts/drive_folder.html
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Dados locais com PII (emails, telefones) — usar Blob em produção
+web/data/people.json

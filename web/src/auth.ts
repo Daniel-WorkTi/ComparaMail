@@ -25,8 +25,14 @@ function parseAdminEmails(): string[] {
 export function isAdminEmail(email?: string | null): boolean {
   if (!isCompanyEmail(email)) return false;
   const admins = parseAdminEmails();
-  // Se ADMIN_EMAILS estiver vazio, toda a empresa pode administrar
-  if (admins.length === 0) return true;
+  // Em produção: lista vazia = ninguém admin (fail closed)
+  if (admins.length === 0) {
+    if (process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production") {
+      return false;
+    }
+    // Em local, se não houver lista, toda a empresa pode administrar
+    return true;
+  }
   return admins.includes(email!.toLowerCase().trim());
 }
 

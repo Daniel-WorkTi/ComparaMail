@@ -3,13 +3,15 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { Person } from "@/lib/types";
+import { uiPhotoSrc } from "@/lib/photos";
 
 type Props = {
   people: Person[];
   mySlug?: string;
+  showEmail?: boolean;
 };
 
-export function PeopleDirectory({ people, mySlug }: Props) {
+export function PeopleDirectory({ people, mySlug, showEmail = false }: Props) {
   const [query, setQuery] = useState("");
   const [dept, setDept] = useState("all");
   const [filterOpen, setFilterOpen] = useState(false);
@@ -24,10 +26,12 @@ export function PeopleDirectory({ people, mySlug }: Props) {
     return people.filter((p) => {
       if (dept !== "all" && p.title !== dept) return false;
       if (!q) return true;
-      const hay = `${p.name} ${p.title} ${p.email || ""}`.toLowerCase();
+      const hay = showEmail
+        ? `${p.name} ${p.title} ${p.email || ""}`.toLowerCase()
+        : `${p.name} ${p.title}`.toLowerCase();
       return hay.includes(q);
     });
-  }, [people, query, dept]);
+  }, [people, query, dept, showEmail]);
 
   const resultLabel = useMemo(() => {
     const q = query.trim();
@@ -56,7 +60,11 @@ export function PeopleDirectory({ people, mySlug }: Props) {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Pesquisar por nome, cargo ou email…"
+            placeholder={
+              showEmail
+                ? "Pesquisar por nome, cargo ou email…"
+                : "Pesquisar por nome ou cargo…"
+            }
             aria-label="Pesquisar"
           />
           {query && (
@@ -149,7 +157,12 @@ export function PeopleDirectory({ people, mySlug }: Props) {
               >
                 <div className="home-row-person">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={person.photoUrl} alt="" className="home-row-avatar" />
+                  <img
+                    src={uiPhotoSrc(person.photoUrl)}
+                    alt=""
+                    className="home-row-avatar"
+                    referrerPolicy="no-referrer"
+                  />
                   <div className="min-w-0">
                     <div className="home-row-name-line">
                       <span className="home-row-name">{person.name}</span>
@@ -159,7 +172,9 @@ export function PeopleDirectory({ people, mySlug }: Props) {
                   </div>
                 </div>
 
-                <span className="home-row-email">{person.email || "—"}</span>
+                <span className="home-row-email">
+                  {showEmail ? person.email || "—" : "—"}
+                </span>
                 <span className="home-row-dept">{person.title}</span>
                 <span className="home-row-chevron" aria-hidden>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">

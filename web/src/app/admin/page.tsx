@@ -37,6 +37,7 @@ export default async function AdminPage() {
         userName={userName}
         userEmail={email || session?.user?.email || ""}
         userPhoto={userPhoto}
+        mySlug={mySignature?.slug}
       />
 
       <main className="home-main">

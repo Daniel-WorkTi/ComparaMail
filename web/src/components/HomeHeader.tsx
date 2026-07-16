@@ -6,12 +6,15 @@ import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { BrandLogo } from "@/components/BrandLogo";
 import { GmailInstallGuide } from "@/components/GmailInstallGuide";
+import { uiPhotoSrc } from "@/lib/photos";
 
 type Props = {
   isAdmin: boolean;
   userName: string;
   userEmail: string;
   userPhoto?: string;
+  /** Slug da assinatura do utilizador autenticado (se existir na lista) */
+  mySlug?: string;
   /** Item ativo na navegação do topo */
   activeNav?: "assinaturas" | "admin";
 };
@@ -21,6 +24,7 @@ export function HomeHeader({
   userName,
   userEmail,
   userPhoto,
+  mySlug,
   activeNav = "assinaturas",
 }: Props) {
   const router = useRouter();
@@ -112,7 +116,12 @@ export function HomeHeader({
               >
                 {userPhoto ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={userPhoto} alt="" className="home-user-avatar" />
+                  <img
+                    src={uiPhotoSrc(userPhoto)}
+                    alt=""
+                    className="home-user-avatar"
+                    referrerPolicy="no-referrer"
+                  />
                 ) : (
                   <span className="home-user-fallback">{initials}</span>
                 )}
@@ -132,6 +141,15 @@ export function HomeHeader({
               </button>
               {menuOpen && (
                 <div className="home-user-menu">
+                  {mySlug && (
+                    <Link
+                      href={`/s/${mySlug}`}
+                      className="home-user-menu-link"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      A minha assinatura
+                    </Link>
+                  )}
                   <button type="button" onClick={logout}>
                     Sair
                   </button>
@@ -153,9 +171,6 @@ export function HomeHeader({
             </div>
             <p className="home-modal-lede">Seis passos até a assinatura ativa no Gmail.</p>
             <GmailInstallGuide source="header" />
-            <button type="button" className="home-modal-close" onClick={() => setHelpOpen(false)}>
-              Entendi
-            </button>
           </div>
         </div>
       )}
