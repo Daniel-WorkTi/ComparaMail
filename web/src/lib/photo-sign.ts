@@ -29,12 +29,12 @@ export function verifyPhotoToken(
   return safeEqualString(expected, sig);
 }
 
-/** Path relativo assinado (TTL longo para Gmail). */
+/** Path relativo assinado (TTL longo para Gmail). base64url já é URL-safe. */
 export function signedPhotoPath(
   id: string,
   ttlSec = 60 * 60 * 24 * 365,
 ): string {
   const exp = Math.floor(Date.now() / 1000) + ttlSec;
   const s = signPhotoToken(id, exp);
-  return `/api/photo/${id}?e=${exp}&s=${encodeURIComponent(s)}`;
+  return `/api/photo/${id}?e=${exp}&s=${s}`;
 }
