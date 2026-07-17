@@ -1,43 +1,60 @@
-# Assinaturas ComparaJá (ComparaMail)
+# ComparaMail — Assinaturas ComparaJá
 
-Sistema web interno para gerar, hospedar e instalar assinaturas de email da ComparaJá.
+Sistema web interno para gerar, hospedar, copiar e publicar assinaturas de email corporativas (substituto do WiseStamp). Deploy na **Vercel**, pasta `web/` como Root Directory.
 
-**Documentação completa:** [../DOCUMENTACAO.md](../DOCUMENTACAO.md)  
-**Arquitetura UI:** [../ARQUITETURA-UI.md](../ARQUITETURA-UI.md)
+> **Documentação completa:** [DOCUMENTACAO.md](../DOCUMENTACAO.md) — arquitetura, segurança, env vars, APIs, Workspace, changelog.  
+> **UI/layout:** [ARQUITETURA-UI.md](../ARQUITETURA-UI.md)
 
-## Início rápido
+## O que faz
+
+| Rota | Função |
+|------|--------|
+| `/` | Diretório de assinaturas (auth obrigatória) + destaque "A tua assinatura" |
+| `/s/[slug]` | Pré-visualização + copiar HTML para o Gmail |
+| `/api/html/[slug]` | HTML cru da assinatura |
+| `/admin` | CRUD pessoas, CSV, settings, sync/publish Google Workspace |
+| `/login` | Google OAuth `@comparaja.pt` (+ password só em dev) |
+
+Template: **modelo 01** (table-based, compatível Gmail). Assinatura instalada via API: **MailCJ2026**.
+
+## Quick start local
 
 ```bash
 cd web
 cp .env.example .env.local
+# AUTH_SECRET, GOOGLE_CLIENT_ID/SECRET, ADMIN_EMAILS (obrigatório para admin)
 npm install
 npm run dev
 ```
 
-Abre [http://localhost:3000](http://localhost:3000)
+Abrir [http://localhost:3000](http://localhost:3000)
 
-## O que faz
+## Auth
 
-- Lista de assinaturas (autenticado `@comparaja.pt`)
-- Página individual com pré-visualização + copiar para Gmail: `/s/[slug]`
-- Admin (`ADMIN_EMAILS`): CRUD, CSV, settings, sync Google Workspace, publicar MailCJ2026
-- HTML cru: `/api/html/[slug]`
+- **Produção:** Google OAuth obrigatório. Só `@comparaja.pt` com `email_verified` + claim `hd`.
+- **Admin:** emails em `ADMIN_EMAILS` (lista vazia = **ninguém** admin — fail-closed).
+- **Dev:** `ACCESS_PASSWORD` opcional; **nunca** concede admin.
 
-## Auth (produção)
+Ver [secção Auth](../DOCUMENTACAO.md#4-autenticação-e-autorização) na documentação completa.
 
-- **Google OAuth** obrigatório — só contas Workspace verificadas (`hd=comparaja.pt`)
-- **`ADMIN_EMAILS` obrigatório** — lista vazia = ninguém admin (fail-closed)
-- Password local: **só desenvolvimento**, sem privilégios admin
-
-## Deploy Vercel
+## Deploy Vercel (resumo)
 
 1. Root Directory = `web`
-2. Env: `AUTH_URL`, `AUTH_SECRET`, `GOOGLE_*`, `ADMIN_EMAILS`, `BLOB_READ_WRITE_TOKEN`
-3. Redirect URIs Google para o domínio de produção
-4. Ver checklist em [DOCUMENTACAO.md](../DOCUMENTACAO.md#10-deploy-vercel--checklist)
+2. Env: `AUTH_URL`, `AUTH_SECRET`, Google OAuth, `ADMIN_EMAILS`, `BLOB_READ_WRITE_TOKEN`
+3. Redirect URIs Google Cloud com domínio final
+4. Criar Blob Store
 
-## Gmail (colaborador)
+Checklist detalhado: [DOCUMENTACAO.md § Deploy](../DOCUMENTACAO.md#10-deploy-na-vercel--checklist)
 
-1. Abre `/s/nome-da-pessoa` ou “A tua assinatura” na home
-2. **Copiar assinatura**
-3. Gmail → Definições → Assinatura → Colar → Guardar
+## Como colar no Gmail (colaborador)
+
+1. Abrir `/s/nome-da-pessoa` (ou "A tua assinatura" na home)
+2. **Copiar assinatura para o Gmail**
+3. Gmail → Definições → Geral → Assinatura → Ctrl+V → Guardar
+
+## Dados
+
+| Modo | Onde |
+|------|------|
+| Local | `data/people.json` |
+| Produção | Vercel Blob privado (`assinaturas-data.json`) |
