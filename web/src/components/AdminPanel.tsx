@@ -253,10 +253,15 @@ export function AdminPanel({
         throw new Error(data.error || "Erro ao publicar");
       }
       const brand = data.brandName || "MailCJ2026";
+      const n = data.published || 0;
+      const failHint = data.errors?.length
+        ? `\nFalhas: ${data.errors.join(" | ")}`
+        : "";
       showFeedback(
-        `Gmail (${brand}): ${data.published || 0} assinaturas publicadas.` +
-          (data.errors?.length ? ` Falhas: ${data.errors.join(" | ")}` : ""),
-        data.errors?.length ? "info" : "success",
+        n
+          ? `Gmail (${brand}): ${n} assinaturas publicadas.${failHint}\n\nPara aparecer ao escrever: Gmail → Definições → Assinatura → escolhe a assinatura em “Mensagens novas” e em “Respostas”. Depois abre um email NOVO (não só resposta).`
+          : `Nenhuma assinatura publicada.${failHint}`,
+        data.errors?.length && !n ? "error" : n ? "success" : "error",
       );
     } catch (err) {
       showFeedback(err instanceof Error ? err.message : "Erro", "error");
@@ -427,12 +432,21 @@ export function AdminPanel({
             </h2>
             <p className="mt-1 text-sm text-[var(--muted)]">
               <strong>Sincronizar</strong> só baixa email, telemóvel e fotos (Drive).{" "}
-              <strong>Nomes e cargos da app não mudam.</strong> Usa{" "}
+              <strong>Nomes e cargos da app não mudam.</strong>{" "}
               <strong>Enviar cargos</strong> sobe os cargos da ComparaMail para o{" "}
               <strong>perfil no Google Admin</strong> (campo Título). Não muda a
               assinatura no Gmail — isso é “Publicar assinaturas no Gmail”. Precisa do scope{" "}
               <code className="text-[11px]">admin.directory.user</code> na
               delegação do domínio.
+            </p>
+            <p className="mt-2 text-sm text-[var(--muted)]">
+              Se a assinatura <strong>não aparece ao escrever</strong>: no Gmail →
+              Definições → Ver todas → Geral → Assinatura, escolhe a assinatura em{" "}
+              <strong>Mensagens novas</strong> e também em{" "}
+              <strong>Respostas/reencaminhamentos</strong> (a API só grava o HTML;
+              o Gmail por vezes fica em “Sem assinatura”). Abre um{" "}
+              <strong>email novo</strong> (não só resposta) e usa modo rich text, não
+              texto simples. Atualiza a página do Gmail depois de publicar.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <button
