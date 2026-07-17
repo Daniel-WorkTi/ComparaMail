@@ -35,15 +35,19 @@ export function toPhotoUrl(value: string): string {
 }
 
 export function extractDriveFileId(url: string): string | null {
+  const v = (url || "").trim();
+  if (!v) return null;
   const patterns = [
     /\/d\/([a-zA-Z0-9_-]+)/,
     /id=([a-zA-Z0-9_-]+)/,
     /\/folders\/([a-zA-Z0-9_-]+)/,
   ];
   for (const p of patterns) {
-    const m = url.match(p);
+    const m = v.match(p);
     if (m?.[1]) return m[1];
   }
+  // ID cru do Drive (como no import.csv)
+  if (/^[a-zA-Z0-9_-]{20,120}$/.test(v)) return v;
   return null;
 }
 

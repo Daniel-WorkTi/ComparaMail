@@ -298,29 +298,19 @@ export async function fetchWorkspacePhotoBytes(
 }
 
 /**
- * URL estável para gravar em people.json.
- * Preferência: Vercel Blob → path wphoto estável (foto perfil Gmail via API).
+ * URL durável para gravar em people.json (só HTTPS público).
+ * Preferência: Vercel Blob. Sem Blob → null (mantém Drive local).
+ * Nunca devolve paths locais nem wphoto: (quebram no Gmail).
  */
 export async function resolveWorkspacePhotoUrl(
   userEmail: string,
-  thumbnailPhotoUrl?: string,
+  _thumbnailPhotoUrl?: string,
 ): Promise<string | null> {
   const email = userEmail.toLowerCase().trim();
   if (!email) return null;
 
   const fromApi = await fetchWorkspacePhotoBytes(email);
-  if (!fromApi) {
-    const thumb = (thumbnailPhotoUrl || "").trim();
-    // Só aceitar thumbs HTTPS públicos (não google s2/private)
-    if (
-      thumb.startsWith("https://") &&
-      !thumb.includes("google.com/s2/photos")
-    ) {
-      return thumb;
-    }
-    // Mesmo sem bytes agora, o /api/wphoto pode tentar mais tarde
-    return `wphoto:${email}`;
-  }
+  if (!fromApi) return null;
 
   const ext = fromApi.contentType.includes("png") ? "png" : "jpg";
   const safeName = email.replace(/[^a-z0-9@._-]/gi, "_");
@@ -344,7 +334,7 @@ export async function resolveWorkspacePhotoUrl(
     }
   }
 
-  // Cache local para UI
+  // Cache local só para UI em dev — não gravar este path em people.json
   try {
     const { mkdir, writeFile } = await import("fs/promises");
     const pathMod = await import("path");
@@ -355,8 +345,7 @@ export async function resolveWorkspacePhotoUrl(
     // ignore
   }
 
-  // Marcador estável — emailPhotoSrc / UI resolvem via /api/wphoto
-  return `wphoto:${email}`;
+  return null;
 }
 
 /** Nome da assinatura ComparaMail instalada no Gmail (marca / identificação). */

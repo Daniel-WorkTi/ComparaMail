@@ -127,6 +127,7 @@ export function AdminPanel({
           updatedTitle: number;
           updatedPhone?: number;
           updatedPhoto?: number;
+          restoredDrivePhoto?: number;
           googleUsers: number;
         };
       } = {};
@@ -143,7 +144,7 @@ export function AdminPanel({
       const r = data.result;
       if (!r) throw new Error("Sync sem resultado");
       showFeedback(
-        `Google Workspace: ${r.matched} match · ${r.updatedTitle} cargos · ${r.updatedPhone || 0} telemóveis · ${r.updatedPhoto || 0} fotos · ${r.googleUsers} users. Nomes intactos.`,
+        `Google Workspace: ${r.matched} match · ${r.updatedTitle} cargos · ${r.updatedPhone || 0} telemóveis · ${r.updatedPhoto || 0} fotos (${r.restoredDrivePhoto || 0} Drive) · ${r.googleUsers} users. Nomes intactos.`,
       );
       await refresh();
     } catch (err) {

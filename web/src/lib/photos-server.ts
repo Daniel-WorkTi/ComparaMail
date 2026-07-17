@@ -34,10 +34,16 @@ export function publicAppOrigin(origin?: string): string {
   return "https://comparamailpt.vercel.app";
 }
 
+/** URL lh3 directa — o mesmo padrão do logo ComparaJá (funciona no Gmail). */
+export function drivePhotoPublicUrl(photoUrl: string): string | null {
+  const id = extractDriveFileId(normalizePhotoStorageUrl(photoUrl));
+  if (!id) return null;
+  return `https://lh3.googleusercontent.com/d/${id}=s400`;
+}
+
 /**
  * URL para HTML da assinatura (Gmail).
- * Com email corporativo → sempre /api/wphoto (foto de perfil Workspace/Gmail).
- * Senão: Blob HTTPS → Drive proxy → paths públicos.
+ * Ordem: Drive lh3 (como o logo) → Blob HTTPS → /api/photo assinado → /api/wphoto.
  */
 export function emailPhotoSrc(
   photoUrl: string,
@@ -46,23 +52,37 @@ export function emailPhotoSrc(
 ): string {
   const base = publicAppOrigin(origin);
   const url = normalizePhotoStorageUrl(photoUrl);
-  const email = (personEmail || emailFromWorkspacePath(url) || "")
-    .toLowerCase()
-    .trim();
 
-  // Foto de perfil Gmail/Workspace — estável no Gmail (sem cookies Google)
-  if (email) {
-    return `${base}${workspacePhotoPath(email)}`;
-  }
+  // 1) Google Drive — HTTPS público (igual ao logo)
+  const driveDirect = drivePhotoPublicUrl(url);
+  if (driveDirect) return driveDirect;
 
+  // 2) HTTPS estável (Vercel Blob / CDN), não thumbs privadas Google
   if (url.startsWith("https://")) {
-    const safe = safeImageUrl(url);
-    if (safe) return safe;
+    const fragileGoogle =
+      url.includes("google.com/s2/photos") ||
+      url.includes("googleusercontent.com/a/");
+    if (!fragileGoogle) {
+      const safe = safeImageUrl(url);
+      if (safe) return safe;
+    }
   }
 
+  // 3) Proxy Drive assinado (legado /api/photo/…)
   const driveId = extractDriveFileId(url);
   if (driveId) {
     return `${base}${signedPhotoPath(driveId)}`;
+  }
+  if (url.startsWith("/api/photo/")) {
+    return url.startsWith("http") ? url : `${base}${url}`;
+  }
+
+  // 4) Último recurso: foto Directory Workspace
+  const email = (personEmail || emailFromWorkspacePath(url) || "")
+    .toLowerCase()
+    .trim();
+  if (email) {
+    return `${base}${workspacePhotoPath(email)}`;
   }
 
   if (url.startsWith("/api/")) {
@@ -84,6 +104,10 @@ export function signedUiPhotoSrc(
   const url = normalizePhotoStorageUrl(photoUrl);
   const id = extractDriveFileId(url);
   if (id) return signedPhotoPath(id);
+
+  if (url.startsWith("https://") && !isFragilePhotoUrl(url)) {
+    return safeImageUrl(url) || "";
+  }
 
   const email = (personEmail || emailFromWorkspacePath(url) || "").trim();
   if (email) {
