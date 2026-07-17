@@ -12,7 +12,8 @@ App interna Next.js (App Router) da **ComparaJá** para:
 2. Abrir a assinatura de uma pessoa, pré-visualizar e **copiar HTML para o Gmail**
 3. Admins gerirem pessoas (CRUD), importarem CSV, e editarem settings da empresa
 
-- **Stack:** Next.js 15, React 19, Tailwind CSS 4, next-auth (Google opcional), password local
+- **Stack:** Next.js 15, React 19, Tailwind CSS 4, next-auth v5 (Google em prod), password só dev
+- **Docs:** [DOCUMENTACAO.md](./DOCUMENTACAO.md) (arquitetura, segurança, ops)
 - **Marca:** cor `#45668E`, nome `ComparaJá`
 - **Idioma UI:** Português (PT)
 - **Dados:** ~122 pessoas em `web/data/people.json`
@@ -26,9 +27,11 @@ App interna Next.js (App Router) da **ComparaJá** para:
 |------|------|------|---------|--------|
 | `/login` | Página | Pública | Todos | Entrar (password e/ou Google `@comparaja.pt`) |
 | `/` | Página | Privada | Utilizadores autenticados | Diretório de assinaturas + destaque “a tua” |
-| `/s/[slug]` | Página | Privada | Utilizadores autenticados | Detalhe: instruções Gmail + copiar + preview |
-| `/admin` | Página | Privada + admin | Admins | Gestão: pessoas, CSV, settings empresa |
-| `/api/html/[slug]` | API (HTML) | Privada | Autenticados | HTML puro da assinatura (abrir em tab) |
+| `/s/[slug]` | Página | Privada | Própria assinatura ou admin | Detalhe: instruções Gmail + copiar + preview |
+| `/admin` | Página | Privada + admin | Só `ADMIN_EMAILS` | Gestão: pessoas, CSV, settings, Workspace |
+| `/api/html/[slug]` | API (HTML) | Privada | Própria assinatura ou admin | HTML puro da assinatura (CSP restritiva) |
+| `/api/workspace/sync` | API | Admin | Admins | Sync email/cargo/tel/foto do Workspace |
+| `/api/workspace/publish` | API | Admin | Admins | Instalar MailCJ2026 no Gmail |
 
 ### Fluxo de navegação
 
@@ -114,13 +117,15 @@ App interna Next.js (App Router) da **ComparaJá** para:
 3. **Painel “Como colar no Gmail”**
    - Lista numerada (5 passos)
    - `CopySignatureButton` (copia HTML+plain para clipboard)
-4. **Pré-visualização** — `SignaturePreview` (HTML injectado)
+4. **Pré-visualização** — `SignaturePreview` (iframe `sandbox=""`)
+   - HTML via `srcDoc`; **isolamento XSS** — sem scripts/forms no iframe
+   - Copy usa string HTML original (`SignatureInstallPanel`), nunca o DOM do iframe
    - Dica fallback Ctrl+A / Ctrl+C
 
 **Dados:** `getPersonBySlug` + `getSettings` + `renderSignatureHtml`  
 **Nota UI:** o HTML dentro do preview é o template de email (tabela 500px). O cromado à volta pode mudar; o HTML interno é produto.
 
-**Componentes:** `CopySignatureButton`, `SignaturePreview`
+**Componentes:** `SignatureInstallPanel`, `SignaturePreview`, `GmailInstallGuide`
 
 ---
 
@@ -144,12 +149,21 @@ App interna Next.js (App Router) da **ComparaJá** para:
 **Tabs:**
 
 #### Tab A — Pessoas
+
+**Secção Google Workspace** (topo da tab):
+- Texto: sync email, cargo, telemóvel, foto; nomes locais intactos
+- Botão **Sincronizar do Google Workspace** → `POST /api/workspace/sync`
+- Botão **Instalar MailCJ2026 em todos** → `POST /api/workspace/publish` `{ all: true }`
+- Hint de config se SA/admin em falta (via `GET /api/workspace/sync`)
+- Botões desativados se Workspace não configurado ou sessão não admin
+
 1. **Form** criar/editar pessoa  
-   Campos: `name`, `title`, `photoUrl`, `email` (opcional), `active` (checkbox)  
+   Campos: `name`, `title`, `photoUrl`, `email` (opcional), `phone` (opcional), `active` (checkbox)  
    Botões: Guardar / Cancelar (se editar)
 2. **Tabela** de pessoas  
-   Colunas: Foto | Nome (+ badge inativa) | Cargo | Link `/s/{slug}` | Editar / Apagar  
-   Filtro texto no topo
+   Colunas: Foto | Nome (+ badge inativa) | Cargo | Link `/s/{slug}` | **MailCJ2026** (por linha) | Editar / Apagar  
+   Filtro texto no topo  
+   Ação por linha: **Instalar MailCJ2026 no Gmail** → `POST /api/workspace/publish` `{ slug }` (só se pessoa tem email)
 
 #### Tab B — Importar CSV
 - Instruções colunas: `email,nome,cargo,foto` (foto = ID Drive ou URL)
@@ -185,7 +199,7 @@ Botão “Guardar definições”
 
 ```ts
 Person {
-  id, slug, name, title, email?, photoUrl, active, createdAt, updatedAt
+  id, slug, name, title, email?, phone?, photoUrl, active, createdAt, updatedAt
 }
 
 CompanySettings {
@@ -211,7 +225,7 @@ CompanySettings {
 | POST | `/api/people` | Criar pessoa (`type: person`) ou settings (`type: settings`) |
 | PUT | `/api/people/[id]` | Editar pessoa |
 | DELETE | `/api/people/[id]` | Apagar pessoa |
-| POST | `/api/people/import` | Import CSV `{ csv, mode }` |
+| POST | `/api/people/import` | Import CSV `{ csv, mode }` (max 500 linhas) |
 | GET/POST | `/api/workspace/sync` | Estado + sync Workspace |
 | POST | `/api/workspace/publish` | Publicar assinatura no Gmail |
 | GET | `/api/html/[slug]` | HTML da assinatura (CSP estrita) |
@@ -227,6 +241,17 @@ CompanySettings {
 | Google `@comparaja.pt` + `hd` verificado | Login empresa |
 | `ADMIN_EMAILS` | Lista explícita; **vazio = ninguém admin** (fail-closed) |
 | Botão Admin | Só aparece na home se `isAdminUser()` |
+| Não-admin | Só acede à própria assinatura (filtro por email da sessão) |
+| Botões Workspace | Só admin + Service Account configurada |
+
+### Notas de segurança (v3.0)
+
+- **Preview iframe:** `sandbox=""` — sem `allow-scripts`, `allow-same-origin`, etc.; HTML via `srcDoc`
+- **Copy:** clipboard recebe string HTML server-rendered (`SignatureInstallPanel`), nunca o DOM do iframe
+- **Mutações API:** validação `Origin` + schemas Zod nos bodies
+- **Cache:** rotas privadas com `Cache-Control: private, no-store`
+- **Password:** bloqueada em produção (403); nunca concede admin
+- **OAuth Google:** exige `email_verified` + claim `hd` = domínio Workspace
 
 ---
 
@@ -291,4 +316,5 @@ web/data/people.json            # dados
 - [ ] Admin com CRUD, CSV e settings acessíveis
 - [ ] Desktop + mobile
 - [ ] Sem regressões de auth/admin
-- [ ] Preview da assinatura continua a copiar HTML válido para Gmail
+- [ ] Preview usa iframe sandbox; copy continua a usar HTML válido para Gmail
+- [ ] Admin Workspace: sync + publish MailCJ2026 acessíveis só a admins
