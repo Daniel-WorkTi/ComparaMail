@@ -17,6 +17,9 @@ type ServiceAccountJson = {
 
 const DIRECTORY_SCOPE =
   "https://www.googleapis.com/auth/admin.directory.user.readonly";
+/** Escrita no Directory (atualizar cargos). Requer o mesmo Client ID na delegação do domínio. */
+const DIRECTORY_USER_WRITE_SCOPE =
+  "https://www.googleapis.com/auth/admin.directory.user";
 const GMAIL_SETTINGS_SCOPE =
   "https://www.googleapis.com/auth/gmail.settings.basic";
 
@@ -262,6 +265,54 @@ export async function listWorkspaceEmailsAndTitles(): Promise<WorkspaceUser[]> {
   } while (pageToken);
 
   return out;
+}
+
+/**
+ * Actualiza o cargo (organizations.title) de um user no Google Workspace Directory.
+ * Preserva os outros campos da organização primária.
+ */
+export async function updateWorkspaceUserTitle(
+  userEmail: string,
+  title: string,
+): Promise<void> {
+  const email = userEmail.toLowerCase().trim();
+  const newTitle = title.trim();
+  if (!email || !newTitle) {
+    throw new Error("Email e cargo são obrigatórios");
+  }
+
+  const admin = adminEmail();
+  const scopes = [DIRECTORY_USER_WRITE_SCOPE];
+  const userUrl = `https://admin.googleapis.com/admin/directory/v1/users/${encodeURIComponent(email)}`;
+
+  const getRes = await authedFetch(
+    admin,
+    scopes,
+    `${userUrl}?projection=full`,
+  );
+  if (!getRes.ok) {
+    const text = await getRes.text();
+    throw new Error(`Directory GET ${getRes.status}: ${text.slice(0, 240)}`);
+  }
+
+  const user = (await getRes.json()) as DirectoryUser;
+  const orgs = [...(user.organizations || [])];
+  if (orgs.length === 0) {
+    orgs.push({ title: newTitle, primary: true });
+  } else {
+    const primaryIdx = orgs.findIndex((o) => o.primary);
+    const idx = primaryIdx >= 0 ? primaryIdx : 0;
+    orgs[idx] = { ...orgs[idx], title: newTitle, primary: true };
+  }
+
+  const patchRes = await authedFetch(admin, scopes, userUrl, {
+    method: "PATCH",
+    body: JSON.stringify({ organizations: orgs }),
+  });
+  if (!patchRes.ok) {
+    const text = await patchRes.text();
+    throw new Error(`Directory PATCH ${patchRes.status}: ${text.slice(0, 240)}`);
+  }
 }
 
 /**
