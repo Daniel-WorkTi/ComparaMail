@@ -6,14 +6,17 @@ import {
 } from "@/lib/photos";
 import {
   signedPhotoPath,
-  signedWorkspacePhotoPath,
+  workspacePhotoPath,
+  workspacePhotoToken,
 } from "@/lib/photo-sign";
 import { safeImageUrl } from "@/lib/security";
 
 /**
  * Origem pública para Gmail — nunca localhost.
+ * Passar `""` para URLs relativas (preview na app).
  */
 export function publicAppOrigin(origin?: string): string {
+  if (origin === "") return "";
   const candidates = [
     origin,
     process.env.PRODUCTION_AUTH_URL,
@@ -33,8 +36,8 @@ export function publicAppOrigin(origin?: string): string {
 
 /**
  * URL para HTML da assinatura (Gmail).
- * Drive → /api/photo assinado; Workspace → /api/wphoto assinado;
- * HTTPS Blob/Google → direto. Nunca localhost.
+ * Com email corporativo → sempre /api/wphoto (foto de perfil Workspace/Gmail).
+ * Senão: Blob HTTPS → Drive proxy → paths públicos.
  */
 export function emailPhotoSrc(
   photoUrl: string,
@@ -43,26 +46,23 @@ export function emailPhotoSrc(
 ): string {
   const base = publicAppOrigin(origin);
   const url = normalizePhotoStorageUrl(photoUrl);
+  const email = (personEmail || emailFromWorkspacePath(url) || "")
+    .toLowerCase()
+    .trim();
+
+  // Foto de perfil Gmail/Workspace — estável no Gmail (sem cookies Google)
+  if (email) {
+    return `${base}${workspacePhotoPath(email)}`;
+  }
 
   if (url.startsWith("https://")) {
-    return safeImageUrl(url) || "";
+    const safe = safeImageUrl(url);
+    if (safe) return safe;
   }
 
   const driveId = extractDriveFileId(url);
   if (driveId) {
     return `${base}${signedPhotoPath(driveId)}`;
-  }
-
-  const email = (personEmail || emailFromWorkspacePath(url) || "")
-    .toLowerCase()
-    .trim();
-  if (
-    email &&
-    (isFragilePhotoUrl(url) ||
-      url.startsWith("/workspace-photos/") ||
-      !url)
-  ) {
-    return `${base}${signedWorkspacePhotoPath(email)}`;
   }
 
   if (url.startsWith("/api/")) {
@@ -73,14 +73,10 @@ export function emailPhotoSrc(
     return `${base}${url}`;
   }
 
-  if (email) {
-    return `${base}${signedWorkspacePhotoPath(email)}`;
-  }
-
-  return safeImageUrl(url) || "";
+  return "";
 }
 
-/** Path assinado para avatares na listagem (só servidor). */
+/** Path para avatares na listagem (servidor). */
 export function signedUiPhotoSrc(
   photoUrl: string,
   personEmail?: string,
@@ -88,10 +84,13 @@ export function signedUiPhotoSrc(
   const url = normalizePhotoStorageUrl(photoUrl);
   const id = extractDriveFileId(url);
   if (id) return signedPhotoPath(id);
-  if (url.startsWith("/workspace-photos/")) return url;
+
   const email = (personEmail || emailFromWorkspacePath(url) || "").trim();
-  if (email && isFragilePhotoUrl(url)) {
-    return signedWorkspacePhotoPath(email);
+  if (email) {
+    return workspacePhotoPath(email);
   }
+  if (url.startsWith("/workspace-photos/")) return url;
   return safeImageUrl(url) || "";
 }
+
+export { workspacePhotoToken };

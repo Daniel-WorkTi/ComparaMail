@@ -35,7 +35,7 @@ export function renderSignatureHtml(
   const name = escapeHtml(person.name);
   const title = escapeHtml(person.title);
   const brand = escapeHtml(settings.brandColor || "#45668E");
-  const photoOrigin = mode === "preview" ? undefined : options?.origin;
+  const photoOrigin = mode === "preview" ? "" : options?.origin;
   const logo = escapeHtml(emailPhotoSrc(settings.logoUrl, photoOrigin));
   const photo = escapeHtml(
     emailPhotoSrc(person.photoUrl, photoOrigin, person.email),

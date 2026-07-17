@@ -6,12 +6,15 @@ export function isDrivePhotoUrl(photoUrl: string): boolean {
   return Boolean(extractDriveFileId(photoUrl));
 }
 
-/** Fotos que quebram no Gmail (localhost ou ficheiros só no PC). */
+/** Fotos que quebram no Gmail (localhost, ficheiros locais ou thumbs privadas Google). */
 export function isFragilePhotoUrl(photoUrl: string): boolean {
   const u = (photoUrl || "").trim().toLowerCase();
   if (!u) return true;
+  if (u.startsWith("wphoto:")) return true;
   if (u.includes("localhost") || u.includes("127.0.0.1")) return true;
   if (u.includes("/workspace-photos/")) return true;
+  if (u.includes("google.com/s2/photos")) return true;
+  if (u.includes("googleusercontent.com/a/")) return true;
   return false;
 }
 
@@ -34,6 +37,10 @@ export function normalizePhotoStorageUrl(photoUrl: string): string {
 }
 
 export function emailFromWorkspacePath(photoUrl: string): string | null {
+  const raw = (photoUrl || "").trim();
+  if (raw.toLowerCase().startsWith("wphoto:")) {
+    return raw.slice("wphoto:".length).toLowerCase().trim() || null;
+  }
   const url = normalizePhotoStorageUrl(photoUrl);
   const m = url.match(/\/workspace-photos\/([^/?#]+)\.(png|jpe?g|webp)$/i);
   if (!m) return null;
@@ -46,14 +53,25 @@ export function emailFromWorkspacePath(photoUrl: string): string | null {
 
 /**
  * URL para a UI (client-safe — sem crypto).
- * Drive → /api/photo/ID (sessão); Workspace local → /workspace-photos/...
+ * Drive → /api/photo/ID; Workspace → /api/wphoto/{base64email}
  */
-export function uiPhotoSrc(photoUrl: string): string {
+export function uiPhotoSrc(photoUrl: string, personEmail?: string): string {
   const url = normalizePhotoStorageUrl(photoUrl);
   if (url.startsWith("/api/photo/") || url.startsWith("/api/wphoto/")) return url;
-  if (url.startsWith("/workspace-photos/")) return url;
+
   const id = extractDriveFileId(url);
   if (id) return `/api/photo/${id}`;
+
+  const email = (personEmail || emailFromWorkspacePath(url) || "")
+    .toLowerCase()
+    .trim();
+  if (email) {
+    // base64url sem Buffer (client)
+    const token = btoa(email).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    return `/api/wphoto/${token}`;
+  }
+
+  if (url.startsWith("/workspace-photos/")) return url;
   return safeImageUrl(url) || "";
 }
 

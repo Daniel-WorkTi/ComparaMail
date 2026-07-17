@@ -158,7 +158,7 @@ export function PeopleDirectory({ people, mySlug, showEmail = false }: Props) {
                 <div className="home-row-person">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={uiPhotoSrc(person.photoUrl)}
+                    src={uiPhotoSrc(person.photoUrl, person.email)}
                     alt=""
                     className="home-row-avatar"
                     referrerPolicy="no-referrer"
