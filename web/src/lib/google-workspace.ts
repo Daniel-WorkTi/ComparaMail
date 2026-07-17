@@ -157,8 +157,23 @@ async function getAuthClient(subject: string, scopes: string[]): Promise<JWT> {
     scopes,
     subject,
   });
-  await client.authorize();
+  try {
+    await client.authorize();
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (/unauthorized_client|not authorized|invalid_scope/i.test(msg)) {
+      throw new Error(
+        `Scope não autorizado na delegação do domínio: ${scopes.join(", ")}. No Google Admin → Segurança → Delegação em todo o domínio, adiciona este scope ao Client ID da Service Account.`,
+      );
+    }
+    throw err;
+  }
   return client;
+}
+
+/** Confirma se a SA consegue obter token com escrita no Directory. */
+export async function assertDirectoryWriteAccess(): Promise<void> {
+  await getAuthClient(adminEmail(), [DIRECTORY_USER_WRITE_SCOPE]);
 }
 
 async function authedFetch(
