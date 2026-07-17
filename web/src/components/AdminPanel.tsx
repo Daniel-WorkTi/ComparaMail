@@ -144,9 +144,58 @@ export function AdminPanel({
       const r = data.result;
       if (!r) throw new Error("Sync sem resultado");
       showFeedback(
-        `Google Workspace: ${r.matched} match · ${r.updatedTitle} cargos · ${r.updatedPhone || 0} telemóveis · ${r.updatedPhoto || 0} fotos (${r.restoredDrivePhoto || 0} Drive) · ${r.googleUsers} users. Nomes intactos.`,
+        `Sync (só baixa): ${r.matched} match · cargos intactos · ${r.updatedPhone || 0} telemóveis · ${r.updatedPhoto || 0} fotos (${r.restoredDrivePhoto || 0} Drive) · ${r.googleUsers} users.`,
       );
       await refresh();
+    } catch (err) {
+      showFeedback(err instanceof Error ? err.message : "Erro", "error");
+    } finally {
+      setBusyLabel(null);
+    }
+  }
+
+  async function pushTitlesWorkspace() {
+    if (
+      !confirm(
+        "Enviar os CARGOS da ComparaMail para o Google Workspace?\n\nIsto substitui o cargo antigo no perfil de cada colaborador no Admin Google. Nomes não mudam.",
+      )
+    ) {
+      return;
+    }
+    setBusyLabel("A enviar cargos para o Workspace...");
+    setFeedback(null);
+    try {
+      const res = await fetch("/api/workspace/push-titles", { method: "POST" });
+      const text = await res.text();
+      let data: {
+        error?: string;
+        result?: {
+          updated: number;
+          skipped: number;
+          failed?: string[];
+          googleUsers: number;
+        };
+      } = {};
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch {
+        throw new Error(
+          text?.trim()
+            ? `Resposta inválida do servidor (${res.status})`
+            : `Servidor sem resposta (${res.status}). Tenta outra vez.`,
+        );
+      }
+      if (!res.ok) throw new Error(data.error || "Erro ao enviar cargos");
+      const r = data.result;
+      if (!r) throw new Error("Sem resultado");
+      const failN = r.failed?.length || 0;
+      showFeedback(
+        `Cargos → Workspace: ${r.updated} actualizados · ${r.skipped} iguais/ignorados${failN ? ` · ${failN} falhas` : ""}.`,
+        failN && !r.updated ? "error" : "success",
+      );
+      if (failN && r.failed?.[0]) {
+        console.warn("push-titles failures", r.failed);
+      }
     } catch (err) {
       showFeedback(err instanceof Error ? err.message : "Erro", "error");
     } finally {
@@ -364,11 +413,11 @@ export function AdminPanel({
               Google Workspace
             </h2>
             <p className="mt-1 text-sm text-[var(--muted)]">
-              Sincroniza <strong>email</strong>, <strong>cargo</strong>,{" "}
-              <strong>telemóvel</strong> e <strong>foto do Workspace</strong> (substitui
-              fotos antigas do Drive). Os nomes locais não mudam. Depois podes instalar no
-              Gmail como <strong>MailCJ2026</strong> (assinatura ativa da conta — aparece em
-              novos emails).
+              <strong>Sincronizar</strong> só baixa email, telemóvel e fotos (Drive).{" "}
+              <strong>Nomes e cargos da app não mudam.</strong> Usa{" "}
+              <strong>Enviar cargos</strong> para subir os cargos da ComparaMail para o
+              Google Workspace. Depois podes instalar no Gmail como{" "}
+              <strong>MailCJ2026</strong>.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <button
@@ -378,6 +427,14 @@ export function AdminPanel({
                 className="cj-btn cj-btn-primary"
               >
                 Sincronizar do Google Workspace
+              </button>
+              <button
+                type="button"
+                disabled={busy || !workspaceReady}
+                onClick={() => pushTitlesWorkspace()}
+                className="cj-btn cj-btn-secondary"
+              >
+                Enviar cargos para o Workspace
               </button>
               <button
                 type="button"

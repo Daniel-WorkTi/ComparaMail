@@ -3,6 +3,7 @@ import path from "path";
 import {
   listWorkspaceEmailsAndTitles,
   resolveWorkspacePhotoUrl,
+  updateWorkspaceUserTitle,
 } from "@/lib/google-workspace";
 import { parseCsv, toPhotoUrl, extractDriveFileId } from "@/lib/import";
 import { isFragilePhotoUrl } from "@/lib/photos";
@@ -18,6 +19,13 @@ export type WorkspaceSyncResult = {
   unchanged: number;
   googleUsers: number;
   unmatchedLocal: number;
+};
+
+export type WorkspacePushTitlesResult = {
+  updated: number;
+  skipped: number;
+  failed: string[];
+  googleUsers: number;
 };
 
 function isDurableHttpsPhoto(photoUrl: string): boolean {
@@ -45,9 +53,8 @@ async function drivePhotosFromImportCsv(): Promise<Map<string, string>> {
 }
 
 /**
- * Atualiza email + cargo + telemóvel + foto a partir do Workspace.
- * Nomes e slugs ficam intactos. Match só por email.
- * Fotos: restaura Drive se a local for frágil; só sobe Workspace se for HTTPS Blob.
+ * Atualiza email + telemóvel + foto a partir do Workspace.
+ * Nomes, slugs e cargos locais ficam intactos (cargos sobem com pushTitlesToWorkspace).
  */
 export async function syncEmailsAndTitlesFromWorkspace(): Promise<WorkspaceSyncResult> {
   const remote = await listWorkspaceEmailsAndTitles();
@@ -56,7 +63,7 @@ export async function syncEmailsAndTitlesFromWorkspace(): Promise<WorkspaceSyncR
 
   const store = await getStore();
   let matched = 0;
-  let updatedTitle = 0;
+  const updatedTitle = 0;
   let updatedEmail = 0;
   let updatedPhone = 0;
   let updatedPhoto = 0;
@@ -72,7 +79,6 @@ export async function syncEmailsAndTitlesFromWorkspace(): Promise<WorkspaceSyncR
 
     const remoteUser = byEmail.get(localEmail);
     if (!remoteUser) {
-      // Mesmo sem user no Directory, restaurar Drive se a foto estiver partida
       if (isFragilePhotoUrl(person.photoUrl)) {
         const driveUrl = driveByEmail.get(localEmail);
         if (driveUrl) {
@@ -96,11 +102,7 @@ export async function syncEmailsAndTitlesFromWorkspace(): Promise<WorkspaceSyncR
       changed = true;
     }
 
-    if (remoteUser.title && person.title !== remoteUser.title) {
-      person.title = remoteUser.title;
-      updatedTitle += 1;
-      changed = true;
-    }
+    // Cargos: a app é a fonte de verdade (não sobrescrever no pull)
 
     if (remoteUser.phone && (person.phone || "") !== remoteUser.phone) {
       person.phone = remoteUser.phone;
@@ -108,7 +110,6 @@ export async function syncEmailsAndTitlesFromWorkspace(): Promise<WorkspaceSyncR
       changed = true;
     }
 
-    // 1) Restaurar Drive do CSV se a foto actual quebra no Gmail
     if (isFragilePhotoUrl(person.photoUrl)) {
       const driveUrl = driveByEmail.get(localEmail);
       if (driveUrl) {
@@ -119,7 +120,6 @@ export async function syncEmailsAndTitlesFromWorkspace(): Promise<WorkspaceSyncR
       }
     }
 
-    // 2) Só substituir por Workspace se for HTTPS durável (Blob)
     try {
       const photoUrl = await resolveWorkspacePhotoUrl(
         remoteUser.email,
@@ -164,5 +164,52 @@ export async function syncEmailsAndTitlesFromWorkspace(): Promise<WorkspaceSyncR
     unchanged,
     googleUsers: remote.length,
     unmatchedLocal: store.people.length - matchedEmails.size,
+  };
+}
+
+/**
+ * Envia os cargos da app para o Google Workspace Directory
+ * (substitui organizations.title no perfil do user).
+ */
+export async function pushTitlesToWorkspace(): Promise<WorkspacePushTitlesResult> {
+  const remote = await listWorkspaceEmailsAndTitles();
+  const byEmail = new Map(remote.map((u) => [u.email, u]));
+  const store = await getStore();
+
+  let updated = 0;
+  let skipped = 0;
+  const failed: string[] = [];
+
+  for (const person of store.people) {
+    const email = (person.email || "").toLowerCase().trim();
+    const title = (person.title || "").trim();
+    if (!email || !title) {
+      skipped += 1;
+      continue;
+    }
+    if (!byEmail.has(email)) {
+      skipped += 1;
+      continue;
+    }
+    const remoteTitle = (byEmail.get(email)?.title || "").trim();
+    if (remoteTitle === title) {
+      skipped += 1;
+      continue;
+    }
+    try {
+      await updateWorkspaceUserTitle(email, title);
+      updated += 1;
+    } catch (err) {
+      failed.push(
+        `${email}: ${err instanceof Error ? err.message : "erro desconhecido"}`,
+      );
+    }
+  }
+
+  return {
+    updated,
+    skipped,
+    failed,
+    googleUsers: remote.length,
   };
 }

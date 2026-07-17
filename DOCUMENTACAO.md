@@ -277,19 +277,24 @@ Permite identificar assinaturas instaladas pela plataforma.
    - Client ID da SA
    - Scopes:
      - `https://www.googleapis.com/auth/admin.directory.user.readonly`
+     - `https://www.googleapis.com/auth/admin.directory.user` (enviar cargos app → Workspace)
      - `https://www.googleapis.com/auth/gmail.settings.basic`
 4. **Super Admin** em `GOOGLE_WORKSPACE_ADMIN_EMAIL` (para impersonation no sync)
 
 ### Sync (`POST /api/workspace/sync`)
 
-Atualiza **por match de email** (nomes e slugs locais intactos):
+Atualiza **por match de email** (nomes, slugs e **cargos** locais intactos):
 
 | Campo | Comportamento |
 |-------|---------------|
 | email | Atualiza se diferente no Directory |
-| cargo (title) | Atualiza se Google tiver valor |
+| cargo (title) | **Não** baixa do Google (a app é a fonte) |
 | telemóvel | Atualiza se Google tiver valor; não apaga local se vazio |
-| foto | Tenta thumbnail Directory → Blob/local; mantém local se falhar |
+| foto | Restaura Drive se frágil; Blob Workspace só se HTTPS durável |
+
+### Push cargos (`POST /api/workspace/push-titles`)
+
+Envia o **cargo da app** para o campo Título do utilizador no Google Workspace (substitui o antigo).
 
 ### Publish (`POST /api/workspace/publish`)
 
