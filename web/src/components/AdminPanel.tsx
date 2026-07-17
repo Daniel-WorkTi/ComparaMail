@@ -200,7 +200,7 @@ export function AdminPanel({
         );
       } else if (!r.updated && !failN) {
         showFeedback(
-          `Nada a alterar: os ${r.skipped} cargos na app já são iguais aos do Workspace (ou sem email). Nota: isto actualiza o cargo no Admin Google, não a assinatura Gmail — para a assinatura usa “Instalar MailCJ2026”.`,
+          `Nada a alterar: os ${r.skipped} cargos na app já são iguais aos do Workspace (ou sem email). Nota: isto actualiza o cargo no Admin Google, não a assinatura Gmail — para a assinatura usa “Publicar assinaturas no Gmail”.`,
           "success",
         );
       } else {
@@ -220,12 +220,12 @@ export function AdminPanel({
     const label = slug ? "esta assinatura" : "todas as assinaturas com email";
     if (
       !confirm(
-        `Instalar ${label} no Gmail como “MailCJ2026”?\nFica como assinatura ativa da conta (novos emails).`,
+        `Publicar ${label} no Gmail como assinatura ativa “MailCJ2026”?\nAparece nos novos emails desta conta.`,
       )
     ) {
       return;
     }
-    setBusyLabel("A instalar no Gmail...");
+    setBusyLabel("A publicar assinaturas no Gmail...");
     setFeedback(null);
     try {
       const res = await fetch("/api/workspace/publish", {
@@ -254,7 +254,7 @@ export function AdminPanel({
       }
       const brand = data.brandName || "MailCJ2026";
       showFeedback(
-        `Gmail (${brand}): ${data.published || 0} instalados como assinatura ativa.` +
+        `Gmail (${brand}): ${data.published || 0} assinaturas publicadas.` +
           (data.errors?.length ? ` Falhas: ${data.errors.join(" | ")}` : ""),
         data.errors?.length ? "info" : "success",
       );
@@ -430,7 +430,7 @@ export function AdminPanel({
               <strong>Nomes e cargos da app não mudam.</strong> Usa{" "}
               <strong>Enviar cargos</strong> sobe os cargos da ComparaMail para o{" "}
               <strong>perfil no Google Admin</strong> (campo Título). Não muda a
-              assinatura no Gmail — isso é o botão MailCJ2026. Precisa do scope{" "}
+              assinatura no Gmail — isso é “Publicar assinaturas no Gmail”. Precisa do scope{" "}
               <code className="text-[11px]">admin.directory.user</code> na
               delegação do domínio.
             </p>
@@ -457,7 +457,7 @@ export function AdminPanel({
                 onClick={() => publishToGmail()}
                 className="cj-btn cj-btn-secondary"
               >
-                Instalar MailCJ2026 em todos
+                Publicar assinaturas no Gmail
               </button>
             </div>
             {(workspaceHint || !workspaceReady) && (
@@ -616,10 +616,10 @@ export function AdminPanel({
                             className="admin-icon-btn"
                             title={
                               person.email
-                                ? "Instalar MailCJ2026 no Gmail"
+                                ? "Publicar assinatura no Gmail"
                                 : "Sem email — não dá para publicar"
                             }
-                            aria-label={`Instalar MailCJ2026 ${person.name}`}
+                            aria-label={`Publicar assinatura de ${person.name} no Gmail`}
                           >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
                               <path
