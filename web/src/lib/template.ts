@@ -59,12 +59,11 @@ export function renderSignatureHtml(
     ? escapeHtml(safeHref(`mailto:${email}`, ["mailto:"]))
     : "";
 
-  const legalBase = (options?.origin || "https://www.comparaja.pt").replace(
-    /\/$/,
-    "",
-  );
   const legalUrl = escapeHtml(
-    safeHref(`${legalBase}/aviso-legal`, ["https:", "http:"]),
+    safeHref(
+      "https://www.comparaja.pt/termos-condicoes-gerais",
+      ["https:"],
+    ),
   );
   const bpUrl = escapeHtml(
     safeHref(
