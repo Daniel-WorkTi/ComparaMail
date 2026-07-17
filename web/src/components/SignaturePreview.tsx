@@ -5,11 +5,13 @@ type Props = {
 
 export function SignaturePreview({ html, id = "signature-preview" }: Props) {
   return (
-    <div
+    <iframe
       id={id}
-      className="sig-preview-html"
-      // HTML gerado pelo nosso template — conteúdo controlado
-      dangerouslySetInnerHTML={{ __html: html }}
+      className="sig-preview-iframe"
+      sandbox=""
+      srcDoc={html}
+      referrerPolicy="no-referrer"
+      title="Pré-visualização da assinatura"
     />
   );
 }

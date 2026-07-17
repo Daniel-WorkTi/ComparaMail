@@ -7,6 +7,26 @@ import { renderSignatureHtml } from "@/lib/template";
 
 type Params = { params: Promise<{ slug: string }> };
 
+const HTML_SECURITY_HEADERS = {
+  "Content-Type": "text/html; charset=utf-8",
+  "Cache-Control": "private, no-store",
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "no-referrer",
+  "Content-Security-Policy": [
+    "default-src 'none'",
+    "script-src 'none'",
+    "style-src 'unsafe-inline'",
+    "img-src https: data:",
+    "connect-src 'none'",
+    "font-src 'none'",
+    "object-src 'none'",
+    "base-uri 'none'",
+    "form-action 'none'",
+    "frame-ancestors 'none'",
+    "sandbox",
+  ].join("; "),
+} as const;
+
 export async function GET(_request: Request, { params }: Params) {
   if (!(await isAuthenticated())) {
     return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
@@ -30,11 +50,7 @@ export async function GET(_request: Request, { params }: Params) {
   const html = renderSignatureHtml(person, settings, { origin });
   return new NextResponse(html, {
     headers: {
-      "Content-Type": "text/html; charset=utf-8",
-      "Cache-Control": "no-store",
-      "X-Content-Type-Options": "nosniff",
-      "Content-Security-Policy":
-        "default-src 'none'; img-src https: http: data:; style-src 'unsafe-inline'; font-src 'none'; script-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'",
+      ...HTML_SECURITY_HEADERS,
       "Content-Disposition": `inline; filename="assinatura-${slug}.html"`,
     },
   });
