@@ -323,7 +323,6 @@ Todas definidas em `web/.env.example`. **Nunca commitar valores reais.**
 | `AUTH_URL` | Prod | URL pública da app (anti Host-header poisoning). Ex.: `https://teu-dominio.vercel.app` |
 | `AUTH_SECRET` | Prod | String longa aleatória. Assina sessões e URLs de fotos |
 | `SIGNATURES_PUBLIC` | Não | `true` = acesso sem login. **Bloqueado em produção** |
-| `ACCESS_PASSWORD` | Dev | Password login local. **Ignorada em produção** |
 | `GOOGLE_CLIENT_ID` | Prod | OAuth Client ID |
 | `GOOGLE_CLIENT_SECRET` | Prod | OAuth Client Secret (nunca commitar) |
 | `ALLOWED_EMAIL_DOMAIN` | Sim | Domínio Workspace permitido. Default: `comparaja.pt` |
@@ -351,7 +350,7 @@ Todas definidas em `web/.env.example`. **Nunca commitar valores reais.**
 cd web
 cp .env.example .env.local
 # Preencher: AUTH_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, ADMIN_EMAILS
-# Opcional: ACCESS_PASSWORD (login sem Google)
+# ADMIN_EMAILS obrigatório para admin (ex: admin@comparaja.pt)
 npm install
 npm run dev
 ```
@@ -377,7 +376,7 @@ npm run import:people   # script CLI
 
 | Cenário | Config |
 |---------|--------|
-| Só password | `ACCESS_PASSWORD=...` (sem Google) |
+| Só Google | `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET` + `ADMIN_EMAILS` |
 | Só Google | `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET` |
 | Admin | Email em `ADMIN_EMAILS` + login Google |
 | Workspace | SA JSON + `GOOGLE_WORKSPACE_ADMIN_EMAIL` |
@@ -424,8 +423,8 @@ npm run import:people   # script CLI
 | Método | Rota | Auth | Descrição |
 |--------|------|------|-----------|
 | GET/POST | `/api/auth/[...nextauth]` | — | Google OAuth (next-auth handlers) |
-| POST | `/api/auth/password` | — | Login password (**403 em prod**) |
-| POST | `/api/auth/logout` | — | Limpa sessão password + signOut |
+| POST | `/api/auth/password` | — | **404** — login por password removido |
+| POST | `/api/auth/logout` | — | Limpa cookie legado + signOut |
 
 ### Pessoas e settings
 
@@ -470,7 +469,7 @@ Medidas introduzidas/reforçadas nos commits `e5fc993`, `3a28f72`, `c4415bb`:
 
 | Medida | Detalhe |
 |--------|---------|
-| Admin fail-closed | `ADMIN_EMAILS` vazio = zero admins; password nunca admin |
+| Admin fail-closed | `ADMIN_EMAILS` vazio = zero admins; só Google OAuth |
 | Google OAuth hardened | Exige `email_verified=true` + claim `hd` = domínio |
 | `access-control.ts` | Helpers centralizados `requireUser()` / `requireAdmin()` |
 | APIs unificadas | Todas as rotas mutáveis usam `requireAdmin` consistente |
@@ -496,7 +495,6 @@ Medidas introduzidas/reforçadas nos commits `e5fc993`, `3a28f72`, `c4415bb`:
 | Limites CSV | Max 500 linhas, 500KB payload |
 | Limites body | POST people max 200KB |
 | Cache privado | Middleware + `jsonPrivate()` em rotas sensíveis |
-| Rate limit login | 5 tentativas/15min por IP (password) |
 | Middleware headers | HSTS, `X-Frame-Options: DENY`, `nosniff`, Permissions-Policy |
 | Bloqueio prod | `SIGNATURES_PUBLIC` e `AUTH_URL` em falta → HTTP 500 |
 
@@ -555,17 +553,15 @@ Medidas introduzidas/reforçadas nos commits `e5fc993`, `3a28f72`, `c4415bb`:
 - Proxy fotos Drive `/api/photo/[id]`
 - Preview e copy para Gmail melhorados
 
-### v3.0 — Segurança e validação (`e5fc993`, `3a28f72`, `c4415bb`)
+### v3.0 — Segurança e validação (`e5fc993` … `211e36f`)
 
 - **Admin fail-closed:** `ADMIN_EMAILS` vazio = zero admins
-- **OAuth hardened:** `hd` + `email_verified` obrigatórios
-- **Password:** bloqueada em produção; nunca concede admin
+- **OAuth hardened:** `hd` + `email_verified` + `@comparaja.pt`
+- **Login:** apenas Google Workspace (password removida, API 404)
+- **Fotos:** sync Workspace substitui URLs do Drive
 - **Preview sandbox:** iframe isolado + copy via HTML original
-- **Escape universal** no template de assinatura
-- **Zod validation** em todas as entradas API
-- **Limites CSV/body** e cache `private, no-store`
-- **CSP** restritiva no endpoint HTML
-- **Middleware** reforçado (HSTS, frame deny, bloqueio modo público)
+- **Zod validation** + limites CSV/body + cache `private, no-store`
+- **Middleware Edge-safe** (`runtime.ts` sem `crypto`)
 
 ---
 
