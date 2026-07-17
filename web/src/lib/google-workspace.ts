@@ -470,11 +470,11 @@ function withSignatureBrand(html: string): string {
   return `${marker}\n${html}`;
 }
 
-/** Publica HTML como assinatura ativa do send-as principal no Gmail. */
+/** Publica HTML como assinatura do send-as principal no Gmail. */
 export async function publishGmailSignature(
   userEmail: string,
   signatureHtml: string,
-): Promise<{ sendAsEmail: string; brandName: string }> {
+): Promise<{ sendAsEmail: string; brandName: string; signatureChars: number }> {
   const email = userEmail.toLowerCase().trim();
   if (!email) throw new Error("Email em falta");
 
@@ -497,7 +497,11 @@ export async function publishGmailSignature(
   }
 
   const listData = (await listRes.json()) as {
-    sendAs?: Array<{ sendAsEmail?: string; isPrimary?: boolean }>;
+    sendAs?: Array<{
+      sendAsEmail?: string;
+      isPrimary?: boolean;
+      isDefault?: boolean;
+    }>;
   };
   const primary =
     listData.sendAs?.find((a) => a.isPrimary) ||
@@ -509,20 +513,35 @@ export async function publishGmailSignature(
   const sendAsEmail = (primary?.sendAsEmail || email).trim();
   if (!sendAsEmail) throw new Error("Send-as principal não encontrado");
 
-  const res = await authedFetch(
-    email,
-    [GMAIL_SETTINGS_SCOPE],
-    `https://gmail.googleapis.com/gmail/v1/users/me/settings/sendAs/${encodeURIComponent(sendAsEmail)}`,
-    {
-      method: "PATCH",
-      body: JSON.stringify({ signature }),
-    },
-  );
+  const patchUrl = `https://gmail.googleapis.com/gmail/v1/users/me/settings/sendAs/${encodeURIComponent(sendAsEmail)}`;
+
+  const res = await authedFetch(email, [GMAIL_SETTINGS_SCOPE], patchUrl, {
+    method: "PATCH",
+    body: JSON.stringify({ signature }),
+  });
 
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`Gmail API ${res.status}: ${text.slice(0, 300)}`);
   }
 
-  return { sendAsEmail, brandName };
+  // Confirmar que o Gmail guardou (sanitização pode esvaziar HTML inválido)
+  const verify = await authedFetch(email, [GMAIL_SETTINGS_SCOPE], patchUrl);
+  if (!verify.ok) {
+    throw new Error(
+      `Assinatura enviada mas não foi possível verificar (${verify.status})`,
+    );
+  }
+  const saved = (await verify.json()) as { signature?: string };
+  const savedSig = (saved.signature || "").trim();
+  if (!savedSig || savedSig.length < 40) {
+    throw new Error(
+      "O Gmail não guardou a assinatura (HTML rejeitado ou vazio). Republica ou simplifica a assinatura.",
+    );
+  }
+  if (!savedSig.includes("ComparaMail") && !savedSig.includes(brandName)) {
+    // Ainda pode estar ok se o Gmail removeu comentários HTML
+  }
+
+  return { sendAsEmail, brandName, signatureChars: savedSig.length };
 }
