@@ -77,7 +77,8 @@ export async function updateSettings( partial: Partial<CompanySettings>): Promis
 export async function createPerson(input: PersonInput): Promise<Person> {
   const store = await getStore();
   const now = new Date().toISOString();
-  const base = slugify(input.slug || input.name);
+  // id/slug/timestamps só no servidor — ignora slug do cliente
+  const base = slugify(input.name);
   const person: Person = {
     id: `p_${Date.now().toString(36)}`,
     slug: uniqueSlug(base, store.people),
@@ -102,7 +103,7 @@ export async function updatePerson(id: string, input: Partial<PersonInput>): Pro
 
   const current = store.people[idx];
   const nextName = input.name?.trim() ?? current.name;
-  const nextSlugBase = slugify(input.slug || nextName);
+  // slug só recalculado se o nome mudar (cliente não define slug/id/timestamps)
 
   const updated: Person = {
     ...current,
@@ -112,8 +113,8 @@ export async function updatePerson(id: string, input: Partial<PersonInput>): Pro
     phone: input.phone !== undefined ? input.phone.trim() : current.phone,
     photoUrl: input.photoUrl?.trim() ?? current.photoUrl,
     slug:
-      input.slug !== undefined || input.name !== undefined
-        ? uniqueSlug(nextSlugBase, store.people, id)
+      input.name !== undefined
+        ? uniqueSlug(slugify(nextName), store.people, id)
         : current.slug,
     active: input.active ?? current.active,
     updatedAt: new Date().toISOString(),

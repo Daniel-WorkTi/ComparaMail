@@ -13,6 +13,9 @@ export function toPhotoUrl(value: string): string {
   const v = value.trim();
   if (!v) return "";
 
+  // Bloqueia esquemas perigosos antes de normalizar
+  if (/^(javascript|data|vbscript|file):/i.test(v)) return "";
+
   if (v.startsWith("http://") || v.startsWith("https://")) {
     const idFromDrive = extractDriveFileId(v);
     if (idFromDrive) {
@@ -21,7 +24,13 @@ export function toPhotoUrl(value: string): string {
     return v;
   }
 
-  // Só o ID do ficheiro no Drive
+  // Path relativo interno
+  if (v.startsWith("/") && !v.startsWith("//")) {
+    return v;
+  }
+
+  // Só o ID do ficheiro no Drive (sem caracteres estranhos)
+  if (!/^[a-zA-Z0-9_-]+$/.test(v)) return "";
   return `https://lh3.googleusercontent.com/d/${v}=s400`;
 }
 
@@ -74,8 +83,10 @@ export function parseCsv(text: string): ImportRow[] {
     ]),
   };
 
-  if (idx.name < 0 || idx.title < 0) {
-    throw new Error("CSV precisa das colunas: nome, cargo (e idealmente email, foto)");
+  if (idx.name < 0 || idx.title < 0 || idx.email < 0 || idx.photo < 0) {
+    throw new Error(
+      "CSV precisa das colunas: email, nome, cargo, foto (aliases: name/title/photo aceites)",
+    );
   }
 
   const rows: ImportRow[] = [];

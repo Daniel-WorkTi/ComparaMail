@@ -36,6 +36,20 @@ export function middleware(request: NextRequest) {
     "Permissions-Policy",
     "camera=(), microphone=(), geolocation=()",
   );
+
+  const path = request.nextUrl.pathname;
+  const privatePath =
+    path === "/" ||
+    path.startsWith("/admin") ||
+    path.startsWith("/s/") ||
+    path.startsWith("/api/people") ||
+    path.startsWith("/api/workspace") ||
+    path.startsWith("/api/auth/password") ||
+    path.startsWith("/api/auth/logout");
+  if (privatePath) {
+    response.headers.set("Cache-Control", "private, no-store");
+  }
+
   if (isProductionRuntime()) {
     response.headers.set(
       "Strict-Transport-Security",

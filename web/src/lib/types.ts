@@ -35,6 +35,5 @@ export type PersonInput = {
   email?: string;
   phone?: string;
   photoUrl: string;
-  slug?: string;
   active?: boolean;
 };
