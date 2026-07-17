@@ -350,6 +350,11 @@ export async function publishGmailSignature(
 
   const brandName = gmailSignatureBrandName();
   const signature = withSignatureBrand(signatureHtml);
+  if (signature.length > 10_000) {
+    throw new Error(
+      `Signature exceeds maximum length of 10000 characters (${signature.length})`,
+    );
+  }
 
   const listRes = await authedFetch(
     email,
