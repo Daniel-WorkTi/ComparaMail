@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { GmailInstallGuide } from "@/components/GmailInstallGuide";
 import { FeedbackBanner } from "@/components/FeedbackBanner";
+import { GmailInstallGuide } from "@/components/GmailInstallGuide";
 
 type Props = {
   html: string;
@@ -12,6 +12,10 @@ type Props = {
 
 export function SignatureInstallPanel({ html, slug }: Props) {
   const [status, setStatus] = useState<"idle" | "ok" | "fallback" | "error">("idle");
+  const [copyFeedback, setCopyFeedback] = useState<{
+    kind: "success" | "error" | "info";
+    message: string;
+  } | null>(null);
   const [guideOpen, setGuideOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -28,6 +32,7 @@ export function SignatureInstallPanel({ html, slug }: Props) {
   }, []);
 
   async function handleCopy() {
+    setCopyFeedback(null);
     // Usa sempre a string HTML original — nunca o DOM do iframe sandboxed.
     try {
       if (typeof ClipboardItem !== "undefined" && navigator.clipboard?.write) {
@@ -38,12 +43,17 @@ export function SignatureInstallPanel({ html, slug }: Props) {
           }),
         ]);
         setStatus("ok");
+        setCopyFeedback({ kind: "success", message: "Assinatura copiada." });
         setTimeout(() => setStatus("idle"), 2800);
         return;
       }
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(html);
         setStatus("fallback");
+        setCopyFeedback({
+          kind: "info",
+          message: "Assinatura copiada como texto simples.",
+        });
         setTimeout(() => setStatus("idle"), 3500);
         return;
       }
@@ -61,9 +71,17 @@ export function SignatureInstallPanel({ html, slug }: Props) {
         document.body.removeChild(ta);
         if (!ok) throw new Error("execCommand failed");
         setStatus("fallback");
+        setCopyFeedback({
+          kind: "info",
+          message: "Assinatura copiada como texto simples.",
+        });
         setTimeout(() => setStatus("idle"), 3500);
       } catch {
         setStatus("error");
+        setCopyFeedback({
+          kind: "error",
+          message: "Não foi possível copiar. Seleciona a pré-visualização e usa Ctrl+C.",
+        });
       }
     }
   }
@@ -141,11 +159,11 @@ export function SignatureInstallPanel({ html, slug }: Props) {
             </a>
           </div>
 
-          {status === "error" && (
+          {copyFeedback && (
             <FeedbackBanner
-              kind="error"
-              message="Não foi possível copiar. Seleciona a pré-visualização e usa Ctrl+C."
-              onDismiss={() => setStatus("idle")}
+              kind={copyFeedback.kind}
+              message={copyFeedback.message}
+              onDismiss={() => setCopyFeedback(null)}
             />
           )}
         </div>
