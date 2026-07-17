@@ -39,9 +39,17 @@ export async function listPeopleForViewer(options: {
   return all.filter((p) => (p.email || "").toLowerCase() === email);
 }
 
-export async function getPersonBySlug(slug: string): Promise<Person | null> {
+export async function getPersonBySlug(
+  slug: string,
+  options?: { includeInactive?: boolean },
+): Promise<Person | null> {
   const store = await getStore();
-  return store.people.find((p) => p.slug === slug && p.active) || null;
+  return (
+    store.people.find(
+      (p) =>
+        p.slug === slug && (options?.includeInactive || p.active),
+    ) || null
+  );
 }
 
 export async function getPersonByEmail(email: string): Promise<Person | null> {

@@ -3,7 +3,8 @@ import Google from "next-auth/providers/google";
 
 const ALLOWED_DOMAIN = (process.env.ALLOWED_EMAIL_DOMAIN || "comparaja.pt")
   .toLowerCase()
-  .replace(/^@/, "");
+  .replace(/^@/, "")
+  .replace(/^["']|["']$/g, "");
 
 const googleReady = Boolean(
   process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET,
@@ -18,7 +19,7 @@ function isCompanyEmail(email?: string | null): boolean {
 function parseAdminEmails(): string[] {
   return (process.env.ADMIN_EMAILS || "")
     .split(",")
-    .map((e) => e.trim().toLowerCase())
+    .map((e) => e.trim().toLowerCase().replace(/^["']|["']$/g, ""))
     .filter(Boolean);
 }
 

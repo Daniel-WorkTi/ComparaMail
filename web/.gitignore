@@ -24,6 +24,9 @@
 .DS_Store
 *.pem
 
+# fotos Workspace em local (dev)
+/public/workspace-photos/
+
 # debug
 npm-debug.log*
 yarn-debug.log*
@@ -35,9 +38,16 @@ yarn-error.log*
 .env.*
 !.env.example
 
+# Service account JSON local
+.secrets/
+
+
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.vercel
+.env*

@@ -38,11 +38,50 @@ export function AdminPanel({
   const [importMode, setImportMode] = useState<"skip" | "update">("update");
   const [query, setQuery] = useState("");
   const [tab, setTab] = useState<"people" | "import" | "settings">("people");
+  const [workspaceReady, setWorkspaceReady] = useState(false);
+  const [workspaceHint, setWorkspaceHint] = useState("");
 
   useEffect(() => {
     setPeople(initialPeople);
     setSettings(initialSettings);
   }, [initialPeople, initialSettings]);
+
+  useEffect(() => {
+    fetch("/api/workspace/sync")
+      .then(async (r) => {
+        const d = await r.json();
+        const ready = Boolean(d.configured) && r.ok;
+        setWorkspaceReady(ready);
+        if (!r.ok && d.error === "Sem permissão de admin") {
+          setWorkspaceHint(
+            d.configured
+              ? "Google Workspace está configurado, mas a tua sessão não é admin. Entra com um email de ADMIN_EMAILS (ou password local em desenvolvimento)."
+              : "A tua sessão não é admin. Entra com um email listado em ADMIN_EMAILS.",
+          );
+        } else if (!d.configured) {
+          const dbg = d.debug;
+          if (dbg && !dbg.hasServiceAccount) {
+            setWorkspaceHint(
+              "Service Account inválida no ambiente. O JSON no .env.local costuma partir-se: corre `node scripts/extract-sa-json.cjs` (cria web/.secrets/google-sa.json) e reinicia.",
+            );
+          } else if (dbg && !dbg.hasAdminEmail) {
+            setWorkspaceHint(
+              "Falta GOOGLE_WORKSPACE_ADMIN_EMAIL (o teu email @comparaja.pt de Super Admin).",
+            );
+          } else {
+            setWorkspaceHint(
+              "Ainda não configurado: GOOGLE_SERVICE_ACCOUNT_FILE ou JSON + GOOGLE_WORKSPACE_ADMIN_EMAIL.",
+            );
+          }
+        } else {
+          setWorkspaceHint("");
+        }
+      })
+      .catch(() => {
+        setWorkspaceReady(false);
+        setWorkspaceHint("Não foi possível verificar a configuração do Google Workspace.");
+      });
+  }, []);
 
   const filteredPeople = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -58,6 +97,93 @@ export function AdminPanel({
     const data = await res.json();
     setPeople(data.people);
     if (data.settings?.logoUrl) setSettings(data.settings);
+  }
+
+  async function syncWorkspace() {
+    setBusy(true);
+    setMessage("");
+    try {
+      const res = await fetch("/api/workspace/sync", { method: "POST" });
+      const text = await res.text();
+      let data: {
+        error?: string;
+        result?: {
+          matched: number;
+          updatedTitle: number;
+          updatedPhone?: number;
+          updatedPhoto?: number;
+          googleUsers: number;
+        };
+      } = {};
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch {
+        throw new Error(
+          text?.trim()
+            ? `Resposta inválida do servidor (${res.status})`
+            : `Servidor sem resposta (${res.status}). Tenta outra vez.`,
+        );
+      }
+      if (!res.ok) throw new Error(data.error || "Erro no sync");
+      const r = data.result;
+      if (!r) throw new Error("Sync sem resultado");
+      setMessage(
+        `Google Workspace: ${r.matched} match · ${r.updatedTitle} cargos · ${r.updatedPhone || 0} telemóveis · ${r.updatedPhoto || 0} fotos · ${r.googleUsers} users. Nomes intactos.`,
+      );
+      await refresh();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "Erro");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function publishToGmail(slug?: string) {
+    const label = slug ? "esta assinatura" : "todas as assinaturas com email";
+    if (
+      !confirm(
+        `Instalar ${label} no Gmail como “MailCJ2026”?\nFica como assinatura ativa da conta (novos emails).`,
+      )
+    ) {
+      return;
+    }
+    setBusy(true);
+    setMessage("");
+    try {
+      const res = await fetch("/api/workspace/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(slug ? { slug } : { all: true }),
+      });
+      const text = await res.text();
+      let data: {
+        error?: string;
+        brandName?: string;
+        published?: number;
+        errors?: string[];
+      } = {};
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch {
+        throw new Error(
+          text?.trim()
+            ? `Resposta inválida do servidor (${res.status})`
+            : `Servidor sem resposta (${res.status}). Reinicia o npm run dev e tenta outra vez.`,
+        );
+      }
+      if (!res.ok && !data.published) {
+        throw new Error(data.error || "Erro ao publicar");
+      }
+      const brand = data.brandName || "MailCJ2026";
+      setMessage(
+        `Gmail (${brand}): ${data.published || 0} instalados como assinatura ativa.` +
+          (data.errors?.length ? ` Falhas: ${data.errors.join(" | ")}` : ""),
+      );
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "Erro");
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function importCsv() {
@@ -208,6 +334,43 @@ export function AdminPanel({
         <div className="cj-rise cj-rise-delay-2 space-y-5">
           <section className="cj-panel p-5 sm:p-6">
             <h2 className="text-lg font-bold tracking-tight text-[var(--ink)]">
+              Google Workspace
+            </h2>
+            <p className="mt-1 text-sm text-[var(--muted)]">
+              Sincroniza <strong>email</strong>, <strong>cargo</strong>,{" "}
+              <strong>telemóvel</strong> e <strong>foto</strong> do Google Workspace. Os nomes
+              locais não mudam. Depois podes instalar no Gmail como{" "}
+              <strong>MailCJ2026</strong> (assinatura ativa da conta — aparece em novos
+              emails).
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                type="button"
+                disabled={busy || !workspaceReady}
+                onClick={() => syncWorkspace()}
+                className="cj-btn cj-btn-primary"
+              >
+                Sincronizar do Google Workspace
+              </button>
+              <button
+                type="button"
+                disabled={busy || !workspaceReady}
+                onClick={() => publishToGmail()}
+                className="cj-btn cj-btn-secondary"
+              >
+                Instalar MailCJ2026 em todos
+              </button>
+            </div>
+            {(workspaceHint || !workspaceReady) && (
+              <p className="mt-3 text-xs text-[var(--muted)]">
+                {workspaceHint ||
+                  "Ainda não configurado: define GOOGLE_SERVICE_ACCOUNT_JSON e GOOGLE_WORKSPACE_ADMIN_EMAIL no ambiente (e delegação no Google Admin)."}
+              </p>
+            )}
+          </section>
+
+          <section className="cj-panel p-5 sm:p-6">
+            <h2 className="text-lg font-bold tracking-tight text-[var(--ink)]">
               {editingId ? "Editar pessoa" : "Nova pessoa"}
             </h2>
             <form onSubmit={savePerson} className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -347,6 +510,34 @@ export function AdminPanel({
                       </td>
                       <td className="admin-col-actions">
                         <div className="admin-row-actions">
+                          <button
+                            type="button"
+                            disabled={busy || !workspaceReady || !person.email}
+                            onClick={() => publishToGmail(person.slug)}
+                            className="admin-icon-btn"
+                            title={
+                              person.email
+                                ? "Instalar MailCJ2026 no Gmail"
+                                : "Sem email — não dá para publicar"
+                            }
+                            aria-label={`Instalar MailCJ2026 ${person.name}`}
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+                              <path
+                                d="M4 6h16v12H4V6z"
+                                stroke="currentColor"
+                                strokeWidth="1.7"
+                                strokeLinejoin="round"
+                              />
+                              <path
+                                d="M4 7l8 6 8-6"
+                                stroke="currentColor"
+                                strokeWidth="1.7"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </button>
                           <button
                             type="button"
                             onClick={() => startEdit(person)}
