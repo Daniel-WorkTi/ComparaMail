@@ -135,7 +135,11 @@ App interna Next.js (App Router) da **ComparaJá** para:
 - Aviso se storage = `file` (Vercel não persiste sem Blob)
 - Ações: “Ver lista” + “Sair”
 
-**Feedback:** banner de mensagem (sucesso/erro após ações)
+**Feedback:** `FeedbackBanner` (sucesso/erro/info) + `BusyOverlay` durante sync/publish/import/guardar
+
+**Google Workspace (tab Pessoas):**
+- Sync: email, cargo, telemóvel, foto (nomes locais intactos)
+- Publish MailCJ2026: instala assinatura ativa no Gmail de cada conta
 
 **Tabs:**
 
@@ -169,9 +173,11 @@ Botão “Guardar definições”
 | `PasswordLoginForm` | Client | Login por password → POST `/api/auth/password` |
 | `LogoutButton` | Client | Limpa sessão password + signOut Google → `/login` |
 | `PeopleDirectory` | Client | Pesquisa + lista de pessoas na home |
-| `CopySignatureButton` | Client | Clipboard HTML; fallback seleção do preview |
-| `SignaturePreview` | Server-safe | Render `dangerouslySetInnerHTML` da assinatura |
-| `AdminPanel` | Client | Toda a UI admin (tabs, forms, tabela, CSV, settings) |
+| `SignaturePreview` | Server-safe | iframe `sandbox=""` + `srcDoc` (isolamento XSS) |
+| `SignatureInstallPanel` | Client | Copiar + passos Gmail + `FeedbackBanner` em erro |
+| `BusyOverlay` | Client | Loading minimalista em ações longas |
+| `FeedbackBanner` | Client | Sucesso/erro/info com dismiss |
+| `AdminPanel` | Client | Toda a UI admin (tabs, forms, tabela, CSV, settings, Workspace) |
 
 ---
 
@@ -206,7 +212,9 @@ CompanySettings {
 | PUT | `/api/people/[id]` | Editar pessoa |
 | DELETE | `/api/people/[id]` | Apagar pessoa |
 | POST | `/api/people/import` | Import CSV `{ csv, mode }` |
-| GET | `/api/html/[slug]` | HTML da assinatura |
+| GET/POST | `/api/workspace/sync` | Estado + sync Workspace |
+| POST | `/api/workspace/publish` | Publicar assinatura no Gmail |
+| GET | `/api/html/[slug]` | HTML da assinatura (CSP estrita) |
 
 ---
 
@@ -215,9 +223,9 @@ CompanySettings {
 | Condição | Comportamento UI |
 |----------|------------------|
 | Sem sessão | Só `/login` |
-| Password `ACCESS_PASSWORD` | Login local; quem entra assim é tratado como admin |
-| Google `@comparaja.pt` | Login empresa |
-| `ADMIN_EMAILS` | Lista de emails admin; se vazio + Google → toda a empresa pode admin (ver código) |
+| Password `ACCESS_PASSWORD` | Login local **sem admin**; desativado em produção |
+| Google `@comparaja.pt` + `hd` verificado | Login empresa |
+| `ADMIN_EMAILS` | Lista explícita; **vazio = ninguém admin** (fail-closed) |
 | Botão Admin | Só aparece na home se `isAdminUser()` |
 
 ---
@@ -244,6 +252,7 @@ Ficheiros: `src/app/globals.css`, `src/app/layout.tsx`
 - Acessibilidade: contraste, labels, focus states
 - Não depender de emojis decorativos
 - O **HTML da assinatura de email** (largura ~500px, tabelas, Arial) deve continuar a ser o preview copiável — redesenhar só o **chrome** da app
+- Preview usa **iframe sandbox** (sem scripts); “Saiba mais” expande `<details>` no template, não link externo no email
 
 ---
 

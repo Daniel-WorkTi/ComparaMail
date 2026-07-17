@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { BusyOverlay } from "@/components/BusyOverlay";
+import { FeedbackBanner, inferFeedbackKind } from "@/components/FeedbackBanner";
 import type { CompanySettings, Person } from "@/lib/types";
 import { uiPhotoSrc } from "@/lib/photos";
 
@@ -32,8 +34,17 @@ export function AdminPanel({
   const [settings, setSettings] = useState(initialSettings);
   const [form, setForm] = useState(emptyPerson);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [message, setMessage] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [feedback, setFeedback] = useState<{
+    message: string;
+    kind: FeedbackKind;
+  } | null>(null);
+  const [busyLabel, setBusyLabel] = useState<string | null>(null);
+  const busy = busyLabel !== null;
+
+  function showFeedback(message: string, kind?: FeedbackKind) {
+    setFeedback({ message, kind: kind ?? inferFeedbackKind(message) });
+  }
+  const [busyLabel, setBusyLabel] = useState("A processar…");
   const [csvText, setCsvText] = useState("");
   const [importMode, setImportMode] = useState<"skip" | "update">("update");
   const [query, setQuery] = useState("");
@@ -101,6 +112,7 @@ export function AdminPanel({
 
   async function syncWorkspace() {
     setBusy(true);
+    setBusyLabel("A sincronizar com o Google Workspace…");
     setMessage("");
     try {
       const res = await fetch("/api/workspace/sync", { method: "POST" });
@@ -127,14 +139,14 @@ export function AdminPanel({
       if (!res.ok) throw new Error(data.error || "Erro no sync");
       const r = data.result;
       if (!r) throw new Error("Sync sem resultado");
-      setMessage(
+      showFeedback(
         `Google Workspace: ${r.matched} match · ${r.updatedTitle} cargos · ${r.updatedPhone || 0} telemóveis · ${r.updatedPhoto || 0} fotos · ${r.googleUsers} users. Nomes intactos.`,
       );
       await refresh();
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Erro");
+      showFeedback(err instanceof Error ? err.message : "Erro", "error");
     } finally {
-      setBusy(false);
+      setBusyLabel(null);
     }
   }
 
@@ -148,6 +160,9 @@ export function AdminPanel({
       return;
     }
     setBusy(true);
+    setBusyLabel(
+      slug ? "A instalar assinatura no Gmail…" : "A instalar assinaturas no Gmail…",
+    );
     setMessage("");
     try {
       const res = await fetch("/api/workspace/publish", {
@@ -175,14 +190,15 @@ export function AdminPanel({
         throw new Error(data.error || "Erro ao publicar");
       }
       const brand = data.brandName || "MailCJ2026";
-      setMessage(
+      showFeedback(
         `Gmail (${brand}): ${data.published || 0} instalados como assinatura ativa.` +
           (data.errors?.length ? ` Falhas: ${data.errors.join(" | ")}` : ""),
+        data.errors?.length ? "info" : "success",
       );
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Erro");
+      showFeedback(err instanceof Error ? err.message : "Erro", "error");
     } finally {
-      setBusy(false);
+      setBusyLabel(null);
     }
   }
 
@@ -192,6 +208,7 @@ export function AdminPanel({
       return;
     }
     setBusy(true);
+    setBusyLabel("A importar CSV…");
     setMessage("");
     try {
       const res = await fetch("/api/people/import", {
@@ -202,22 +219,24 @@ export function AdminPanel({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Erro na importação");
       const r = data.result;
-      setMessage(
+      showFeedback(
         `Importação feita: ${r.created} criados, ${r.updated} atualizados, ${r.skipped} ignorados.` +
           (r.errors?.length ? ` Avisos: ${r.errors.join(" | ")}` : ""),
+        r.errors?.length ? "info" : "success",
       );
       setCsvText("");
       await refresh();
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Erro");
+      showFeedback(err instanceof Error ? err.message : "Erro", "error");
     } finally {
-      setBusy(false);
+      setBusyLabel(null);
     }
   }
 
   async function savePerson(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
+    setBusyLabel(editingId ? "A atualizar pessoa…" : "A criar pessoa…");
     setMessage("");
     try {
       const url = editingId ? `/api/people/${editingId}` : "/api/people";
@@ -247,6 +266,7 @@ export function AdminPanel({
   async function saveSettings(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
+    setBusyLabel("A guardar definições…");
     setMessage("");
     try {
       const res = await fetch("/api/people", {
@@ -257,11 +277,11 @@ export function AdminPanel({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Erro ao guardar settings");
       setSettings(data.settings);
-      setMessage("Definições da empresa guardadas.");
+      showFeedback("Definições da empresa guardadas.", "success");
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Erro");
+      showFeedback(err instanceof Error ? err.message : "Erro", "error");
     } finally {
-      setBusy(false);
+      setBusyLabel(null);
     }
   }
 
@@ -283,10 +303,10 @@ export function AdminPanel({
     if (!confirm(`Apagar a assinatura de ${name}?`)) return;
     const res = await fetch(`/api/people/${id}`, { method: "DELETE" });
     if (!res.ok) {
-      setMessage("Não foi possível apagar.");
+      showFeedback("Não foi possível apagar.", "error");
       return;
     }
-    setMessage("Pessoa removida.");
+    showFeedback("Pessoa removida.", "success");
     await refresh();
   }
 
@@ -312,7 +332,15 @@ export function AdminPanel({
         </p>
       </header>
 
-      {message && <div className="cj-alert cj-alert-info">{message}</div>}
+      {message && (
+        <FeedbackBanner
+          kind={inferFeedbackKind(message)}
+          message={message}
+          onDismiss={() => setMessage("")}
+        />
+      )}
+
+      {busy && <BusyOverlay label={busyLabel} />}
 
       <nav className="flex flex-wrap gap-1 rounded-[var(--radius-sm)] border border-[var(--line)] bg-white p-1">
         {tabs.map((t) => (

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { GmailInstallGuide } from "@/components/GmailInstallGuide";
+import { FeedbackBanner } from "@/components/FeedbackBanner";
 
 type Props = {
   html: string;
@@ -141,9 +142,11 @@ export function SignatureInstallPanel({ html, slug }: Props) {
           </div>
 
           {status === "error" && (
-            <p className="sig-copy-error">
-              Não foi possível copiar. Seleciona a pré-visualização e usa Ctrl+C.
-            </p>
+            <FeedbackBanner
+              kind="error"
+              message="Não foi possível copiar. Seleciona a pré-visualização e usa Ctrl+C."
+              onDismiss={() => setStatus("idle")}
+            />
           )}
         </div>
 
