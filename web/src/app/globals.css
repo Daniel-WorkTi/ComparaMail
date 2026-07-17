@@ -293,6 +293,60 @@ a {
   opacity: 1;
 }
 
+.cj-popup-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  background: color-mix(in srgb, var(--ink) 42%, transparent);
+  backdrop-filter: blur(2px);
+}
+
+.cj-popup {
+  width: min(100%, 26rem);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: #fff;
+  padding: 1.25rem 1.35rem 1.15rem;
+  box-shadow: 0 18px 48px color-mix(in srgb, var(--ink) 18%, transparent);
+}
+
+.cj-popup-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.cj-popup-success .cj-popup-title {
+  color: #145c37;
+}
+
+.cj-popup-error .cj-popup-title {
+  color: #8f1d13;
+}
+
+.cj-popup-info .cj-popup-title {
+  color: var(--brand-deep);
+}
+
+.cj-popup-msg {
+  margin: 0.65rem 0 1.15rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--muted);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.cj-popup-ok {
+  width: 100%;
+  min-height: 2.6rem;
+}
+
 .cj-busy-overlay {
   position: fixed;
   inset: 0;
