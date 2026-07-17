@@ -2,7 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { BusyOverlay } from "@/components/BusyOverlay";
-import { FeedbackBanner, inferFeedbackKind } from "@/components/FeedbackBanner";
+import {
+  FeedbackBanner,
+  inferFeedbackKind,
+  type FeedbackKind,
+} from "@/components/FeedbackBanner";
 import type { CompanySettings, Person } from "@/lib/types";
 import { uiPhotoSrc } from "@/lib/photos";
 
@@ -44,7 +48,7 @@ export function AdminPanel({
   function showFeedback(message: string, kind?: FeedbackKind) {
     setFeedback({ message, kind: kind ?? inferFeedbackKind(message) });
   }
-  const [busyLabel, setBusyLabel] = useState("A processar…");
+
   const [csvText, setCsvText] = useState("");
   const [importMode, setImportMode] = useState<"skip" | "update">("update");
   const [query, setQuery] = useState("");
@@ -111,9 +115,8 @@ export function AdminPanel({
   }
 
   async function syncWorkspace() {
-    setBusy(true);
-    setBusyLabel("A sincronizar com o Google Workspace…");
-    setMessage("");
+    setBusyLabel("A sincronizar...");
+    setFeedback(null);
     try {
       const res = await fetch("/api/workspace/sync", { method: "POST" });
       const text = await res.text();
@@ -159,11 +162,8 @@ export function AdminPanel({
     ) {
       return;
     }
-    setBusy(true);
-    setBusyLabel(
-      slug ? "A instalar assinatura no Gmail…" : "A instalar assinaturas no Gmail…",
-    );
-    setMessage("");
+    setBusyLabel("A instalar no Gmail...");
+    setFeedback(null);
     try {
       const res = await fetch("/api/workspace/publish", {
         method: "POST",
@@ -204,12 +204,11 @@ export function AdminPanel({
 
   async function importCsv() {
     if (!csvText.trim()) {
-      setMessage("Cola o CSV primeiro.");
+      showFeedback("Cola o CSV primeiro.", "error");
       return;
     }
-    setBusy(true);
-    setBusyLabel("A importar CSV…");
-    setMessage("");
+    setBusyLabel("A importar...");
+    setFeedback(null);
     try {
       const res = await fetch("/api/people/import", {
         method: "POST",
@@ -235,9 +234,8 @@ export function AdminPanel({
 
   async function savePerson(e: React.FormEvent) {
     e.preventDefault();
-    setBusy(true);
-    setBusyLabel(editingId ? "A atualizar pessoa…" : "A criar pessoa…");
-    setMessage("");
+    setBusyLabel("A guardar...");
+    setFeedback(null);
     try {
       const url = editingId ? `/api/people/${editingId}` : "/api/people";
       const method = editingId ? "PUT" : "POST";
@@ -252,22 +250,22 @@ export function AdminPanel({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Erro ao guardar");
+      const wasEditing = Boolean(editingId);
       setForm(emptyPerson);
       setEditingId(null);
-      setMessage(editingId ? "Pessoa atualizada." : "Pessoa criada.");
+      showFeedback(wasEditing ? "Pessoa atualizada." : "Pessoa criada.", "success");
       await refresh();
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Erro");
+      showFeedback(err instanceof Error ? err.message : "Erro", "error");
     } finally {
-      setBusy(false);
+      setBusyLabel(null);
     }
   }
 
   async function saveSettings(e: React.FormEvent) {
     e.preventDefault();
-    setBusy(true);
-    setBusyLabel("A guardar definições…");
-    setMessage("");
+    setBusyLabel("A guardar...");
+    setFeedback(null);
     try {
       const res = await fetch("/api/people", {
         method: "POST",
@@ -332,15 +330,15 @@ export function AdminPanel({
         </p>
       </header>
 
-      {message && (
+      {feedback && (
         <FeedbackBanner
-          kind={inferFeedbackKind(message)}
-          message={message}
-          onDismiss={() => setMessage("")}
+          kind={feedback.kind}
+          message={feedback.message}
+          onDismiss={() => setFeedback(null)}
         />
       )}
 
-      {busy && <BusyOverlay label={busyLabel} />}
+      {busyLabel && <BusyOverlay label={busyLabel} />}
 
       <nav className="flex flex-wrap gap-1 rounded-[var(--radius-sm)] border border-[var(--line)] bg-white p-1">
         {tabs.map((t) => (
