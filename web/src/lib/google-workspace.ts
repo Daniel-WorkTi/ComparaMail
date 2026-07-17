@@ -315,11 +315,7 @@ export async function resolveWorkspacePhotoUrl(
           await mkdir(dir, { recursive: true });
           const file = pathMod.join(dir, `${safeName}.${ext}`);
           await writeFile(file, bytes);
-          const origin =
-            process.env.AUTH_URL ||
-            process.env.NEXTAUTH_URL ||
-            "http://localhost:3000";
-          return `${origin.replace(/\/$/, "")}/workspace-photos/${encodeURIComponent(`${safeName}.${ext}`)}`;
+          return `/workspace-photos/${safeName}.${ext}`;
         }
       }
     }
