@@ -269,7 +269,7 @@ export async function listWorkspaceEmailsAndTitles(): Promise<WorkspaceUser[]> {
 
 /**
  * Actualiza o cargo (organizations.title) de um user no Google Workspace Directory.
- * Preserva os outros campos da organização primária.
+ * Preserva name/department/etc. da organização primária.
  */
 export async function updateWorkspaceUserTitle(
   userEmail: string,
@@ -292,25 +292,69 @@ export async function updateWorkspaceUserTitle(
   );
   if (!getRes.ok) {
     const text = await getRes.text();
+    if (getRes.status === 403) {
+      throw new Error(
+        "Sem permissão (403). No Google Admin → Delegação do domínio, adiciona o scope admin.directory.user à Service Account.",
+      );
+    }
     throw new Error(`Directory GET ${getRes.status}: ${text.slice(0, 240)}`);
   }
 
-  const user = (await getRes.json()) as DirectoryUser;
-  const orgs = [...(user.organizations || [])];
-  if (orgs.length === 0) {
-    orgs.push({ title: newTitle, primary: true });
-  } else {
-    const primaryIdx = orgs.findIndex((o) => o.primary);
-    const idx = primaryIdx >= 0 ? primaryIdx : 0;
-    orgs[idx] = { ...orgs[idx], title: newTitle, primary: true };
+  const user = (await getRes.json()) as DirectoryUser & {
+    organizations?: Array<Record<string, unknown>>;
+  };
+  const rawOrgs = (user.organizations || []) as Array<Record<string, unknown>>;
+  const primaryIdx = rawOrgs.findIndex((o) => o.primary === true);
+  const idx = primaryIdx >= 0 ? primaryIdx : 0;
+
+  // Só campos seguros — evita rejeição do PATCH por propriedades só de leitura
+  const keepKeys = [
+    "name",
+    "title",
+    "primary",
+    "type",
+    "department",
+    "description",
+    "costCenter",
+    "location",
+    "domain",
+    "symbol",
+  ] as const;
+
+  function slimOrg(
+    src: Record<string, unknown> | undefined,
+    titleValue: string,
+    primary: boolean,
+  ): Record<string, unknown> {
+    const out: Record<string, unknown> = { title: titleValue, primary };
+    if (!src) return out;
+    for (const k of keepKeys) {
+      if (k === "title" || k === "primary") continue;
+      if (src[k] !== undefined && src[k] !== null && src[k] !== "") {
+        out[k] = src[k];
+      }
+    }
+    return out;
   }
+
+  const organizations =
+    rawOrgs.length === 0
+      ? [slimOrg(undefined, newTitle, true)]
+      : rawOrgs.map((org, i) =>
+          i === idx ? slimOrg(org, newTitle, true) : slimOrg(org, String(org.title || ""), Boolean(org.primary)),
+        );
 
   const patchRes = await authedFetch(admin, scopes, userUrl, {
     method: "PATCH",
-    body: JSON.stringify({ organizations: orgs }),
+    body: JSON.stringify({ organizations }),
   });
   if (!patchRes.ok) {
     const text = await patchRes.text();
+    if (patchRes.status === 403) {
+      throw new Error(
+        "Sem permissão para escrever cargos (403). Adiciona https://www.googleapis.com/auth/admin.directory.user na delegação do domínio e espera 1–2 min.",
+      );
+    }
     throw new Error(`Directory PATCH ${patchRes.status}: ${text.slice(0, 240)}`);
   }
 }

@@ -189,12 +189,25 @@ export function AdminPanel({
       const r = data.result;
       if (!r) throw new Error("Sem resultado");
       const failN = r.failed?.length || 0;
-      showFeedback(
-        `Cargos → Workspace: ${r.updated} actualizados · ${r.skipped} iguais/ignorados${failN ? ` · ${failN} falhas` : ""}.`,
-        failN && !r.updated ? "error" : "success",
-      );
-      if (failN && r.failed?.[0]) {
-        console.warn("push-titles failures", r.failed);
+      const detail =
+        failN && r.failed?.[0]
+          ? ` Detalhe: ${r.failed[0].slice(0, 180)}`
+          : "";
+      if (!r.updated && failN) {
+        showFeedback(
+          `Cargos não foram enviados (${failN} falhas).${detail}`,
+          "error",
+        );
+      } else if (!r.updated && !failN) {
+        showFeedback(
+          `Nada a alterar: os ${r.skipped} cargos na app já são iguais aos do Workspace (ou sem email). Nota: isto actualiza o cargo no Admin Google, não a assinatura Gmail — para a assinatura usa “Instalar MailCJ2026”.`,
+          "success",
+        );
+      } else {
+        showFeedback(
+          `Cargos → Workspace: ${r.updated} actualizados · ${r.skipped} iguais/ignorados${failN ? ` · ${failN} falhas` : ""}.${detail}`,
+          failN ? "error" : "success",
+        );
       }
     } catch (err) {
       showFeedback(err instanceof Error ? err.message : "Erro", "error");
@@ -415,9 +428,11 @@ export function AdminPanel({
             <p className="mt-1 text-sm text-[var(--muted)]">
               <strong>Sincronizar</strong> só baixa email, telemóvel e fotos (Drive).{" "}
               <strong>Nomes e cargos da app não mudam.</strong> Usa{" "}
-              <strong>Enviar cargos</strong> para subir os cargos da ComparaMail para o
-              Google Workspace. Depois podes instalar no Gmail como{" "}
-              <strong>MailCJ2026</strong>.
+              <strong>Enviar cargos</strong> sobe os cargos da ComparaMail para o{" "}
+              <strong>perfil no Google Admin</strong> (campo Título). Não muda a
+              assinatura no Gmail — isso é o botão MailCJ2026. Precisa do scope{" "}
+              <code className="text-[11px]">admin.directory.user</code> na
+              delegação do domínio.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <button
