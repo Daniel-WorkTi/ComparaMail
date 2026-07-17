@@ -509,7 +509,7 @@ export function AdminPanel({
                       <td className="admin-col-photo">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                          src={uiPhotoSrc(person.photoUrl)}
+                          src={uiPhotoSrc(person.photoUrl, person.email)}
                           alt=""
                           className="admin-person-avatar"
                           referrerPolicy="no-referrer"
