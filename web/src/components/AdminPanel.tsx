@@ -3,10 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { BusyOverlay } from "@/components/BusyOverlay";
 import {
-  FeedbackBanner,
   inferFeedbackKind,
   type FeedbackKind,
 } from "@/components/FeedbackBanner";
+import { ResultPopup } from "@/components/ResultPopup";
 import type { CompanySettings, Person } from "@/lib/types";
 import { uiPhotoSrc } from "@/lib/photos";
 
@@ -394,10 +394,10 @@ export function AdminPanel({
       </header>
 
       {feedback && (
-        <FeedbackBanner
+        <ResultPopup
           kind={feedback.kind}
           message={feedback.message}
-          onDismiss={() => setFeedback(null)}
+          onClose={() => setFeedback(null)}
         />
       )}
 

@@ -57,11 +57,15 @@ export function inferFeedbackKind(text: string): FeedbackKind {
     t.includes("inválid") ||
     t.includes("invalid") ||
     t.includes("falhas:") ||
+    t.includes("falhou") ||
+    t.includes("não foram") ||
+    t.includes("nao foram") ||
     t.includes("sem permissão") ||
     t.includes("sem permissao") ||
     t.includes("resposta inválida") ||
     t.includes("servidor sem resposta") ||
-    t.includes("cola o csv")
+    t.includes("cola o csv") ||
+    t.includes("scope")
   ) {
     return "error";
   }
@@ -69,12 +73,17 @@ export function inferFeedbackKind(text: string): FeedbackKind {
     t.includes("guardad") ||
     t.includes("criad") ||
     t.includes("atualiz") ||
+    t.includes("actualiz") ||
     t.includes("importação") ||
     t.includes("importacao") ||
-    t.includes("google workspace:") ||
+    t.includes("google workspace") ||
+    t.includes("sync") ||
+    t.includes("cargos →") ||
     t.includes("gmail (") ||
+    t.includes("publicad") ||
     t.includes("removida") ||
-    t.includes("instalados")
+    t.includes("conclu") ||
+    t.includes("nada a alterar")
   ) {
     return "success";
   }
