@@ -4,6 +4,7 @@ import {
   listWorkspaceEmailsAndTitles,
   resolveWorkspacePhotoUrl,
   updateWorkspaceUserTitle,
+  assertDirectoryWriteAccess,
 } from "@/lib/google-workspace";
 import { parseCsv, toPhotoUrl, extractDriveFileId } from "@/lib/import";
 import { isFragilePhotoUrl } from "@/lib/photos";
@@ -172,6 +173,9 @@ export async function syncEmailsAndTitlesFromWorkspace(): Promise<WorkspaceSyncR
  * (substitui organizations.title no perfil do user).
  */
 export async function pushTitlesToWorkspace(): Promise<WorkspacePushTitlesResult> {
+  // Falha cedo e com mensagem clara se faltar o scope de escrita
+  await assertDirectoryWriteAccess();
+
   const remote = await listWorkspaceEmailsAndTitles();
   const byEmail = new Map(remote.map((u) => [u.email, u]));
   const store = await getStore();
@@ -206,14 +210,10 @@ export async function pushTitlesToWorkspace(): Promise<WorkspacePushTitlesResult
     }
   }
 
-  // Se nada actualizou e há falhas de permissão, falha o pedido inteiro com mensagem clara
   if (updated === 0 && failed.length > 0) {
-    const perm = failed.find((f) => /403|permissão|directory\.user/i.test(f));
-    if (perm && failed.length >= Math.min(3, store.people.length)) {
-      throw new Error(
-        "Google recusou escrever cargos (falta scope). No Admin Google → Segurança → Controlo de acesso e dados → Delegação em todo o domínio: edita a Service Account e adiciona https://www.googleapis.com/auth/admin.directory.user (podes manter o .readonly). Guarda e espera 1–2 minutos.",
-      );
-    }
+    throw new Error(
+      `Nenhum cargo actualizado. Exemplo: ${failed[0].slice(0, 220)}`,
+    );
   }
 
   return {
