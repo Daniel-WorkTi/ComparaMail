@@ -55,7 +55,7 @@ export function AdminPanel({
         if (!r.ok && d.error === "Sem permissão de admin") {
           setWorkspaceHint(
             d.configured
-              ? "Google Workspace está configurado, mas a tua sessão não é admin. Entra com um email de ADMIN_EMAILS (ou password local em desenvolvimento)."
+              ? "Google Workspace está configurado, mas a tua sessão não é admin. Entra com um email listado em ADMIN_EMAILS."
               : "A tua sessão não é admin. Entra com um email listado em ADMIN_EMAILS.",
           );
         } else if (!d.configured) {

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { isAdminUser } from "@/lib/auth";
+import { requireAdmin } from "@/lib/access-control";
 import { deletePerson, updatePerson } from "@/lib/people";
 import { assertMutatingOrigin, safeImageUrl } from "@/lib/security";
 import type { PersonInput } from "@/lib/types";
@@ -13,9 +13,8 @@ export async function PUT(request: Request, { params }: Params) {
     return NextResponse.json({ error: "Origem não permitida" }, { status: 403 });
   }
 
-  if (!(await isAdminUser())) {
-    return NextResponse.json({ error: "Sem permissão de admin" }, { status: 403 });
-  }
+  const access = await requireAdmin();
+  if (!access.ok) return access.response;
 
   const { id } = await params;
   if (!/^[\w-]{1,80}$/.test(id)) {
@@ -57,9 +56,8 @@ export async function DELETE(request: Request, { params }: Params) {
     return NextResponse.json({ error: "Origem não permitida" }, { status: 403 });
   }
 
-  if (!(await isAdminUser())) {
-    return NextResponse.json({ error: "Sem permissão de admin" }, { status: 403 });
-  }
+  const access = await requireAdmin();
+  if (!access.ok) return access.response;
 
   const { id } = await params;
   if (!/^[\w-]{1,80}$/.test(id)) {

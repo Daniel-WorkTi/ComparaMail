@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { isAdminUser } from "@/lib/auth";
+import { requireAdmin } from "@/lib/access-control";
 import {
   publishGmailSignature,
   workspaceConfigured,
@@ -19,9 +19,8 @@ export async function POST(request: Request) {
     if (!assertMutatingOrigin(request)) {
       return NextResponse.json({ error: "Origem não permitida" }, { status: 403 });
     }
-    if (!(await isAdminUser())) {
-      return NextResponse.json({ error: "Sem permissão de admin" }, { status: 403 });
-    }
+    const access = await requireAdmin();
+    if (!access.ok) return access.response;
     if (!workspaceConfigured()) {
       return NextResponse.json(
         {

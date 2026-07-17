@@ -64,20 +64,15 @@ export async function isAuthenticated(): Promise<boolean> {
   return hasPasswordSession();
 }
 
+/**
+ * Admin só se o email da sessão Google estiver em ADMIN_EMAILS.
+ * Fail-closed: lista vazia = ninguém. Password local sem email = nunca admin.
+ */
 export async function isAdminUser(): Promise<boolean> {
   const session = await auth();
-  if (session?.user?.email && isAdminEmail(session.user.email)) return true;
-
-  // Password partilhada NUNCA concede admin em produção
-  if (
-    !isProductionRuntime() &&
-    (await hasPasswordSession()) &&
-    getAccessPassword()
-  ) {
-    return true;
-  }
-
-  return false;
+  const email = session?.user?.email;
+  if (!email) return false;
+  return isAdminEmail(email);
 }
 
 /** Email da sessão Google ou null (password local não tem email). */
@@ -89,7 +84,7 @@ export async function sessionEmail(): Promise<string | null> {
 
 /**
  * Não-admin só acede à própria assinatura.
- * Admin (ou password local em dev) acede a todas.
+ * Admin (email em ADMIN_EMAILS) acede a todas.
  */
 export async function canAccessPersonEmail(
   personEmail?: string | null,
