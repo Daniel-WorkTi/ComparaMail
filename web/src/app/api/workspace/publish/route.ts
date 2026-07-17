@@ -5,6 +5,7 @@ import {
   workspaceConfigured,
 } from "@/lib/google-workspace";
 import { getPersonBySlug, getSettings, listPeople } from "@/lib/people";
+import { publicAppOrigin } from "@/lib/photos-server";
 import { resolveAppOrigin } from "@/lib/origin";
 import { assertMutatingOrigin } from "@/lib/security";
 import { renderSignatureHtml, GMAIL_SIGNATURE_MAX_CHARS } from "@/lib/template";
@@ -38,10 +39,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Pedido inválido" }, { status: 400 });
     }
 
-    const [settings, origin] = await Promise.all([
+    const [settings, rawOrigin] = await Promise.all([
       getSettings(),
       resolveAppOrigin(),
     ]);
+    // Gmail nunca pode usar localhost — fotos/logos têm de ser HTTPS públicos
+    const origin = publicAppOrigin(rawOrigin);
 
     const targets = body.all
       ? (await listPeople(true)).filter((p) => (p.email || "").trim())

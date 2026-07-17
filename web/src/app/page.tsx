@@ -5,7 +5,7 @@ import { HomeHeader } from "@/components/HomeHeader";
 import { PeopleDirectory } from "@/components/PeopleDirectory";
 import { isAdminUser, isAuthenticated } from "@/lib/auth";
 import { listPeopleForViewer } from "@/lib/people";
-import { signedUiPhotoSrc } from "@/lib/photos";
+import { signedUiPhotoSrc } from "@/lib/photos-server";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +26,7 @@ export default async function HomePage({ searchParams }: Props) {
   });
   const people = peopleRaw.map((p) => ({
     ...p,
-    photoUrl: signedUiPhotoSrc(p.photoUrl) || p.photoUrl,
+    photoUrl: signedUiPhotoSrc(p.photoUrl, p.email) || p.photoUrl,
   }));
 
   const params = await searchParams;
@@ -37,7 +37,9 @@ export default async function HomePage({ searchParams }: Props) {
   const userName =
     session?.user?.name || mySignature?.name || (email ? email.split("@")[0] : "Utilizador");
   const userPhoto = mySignature
-    ? signedUiPhotoSrc(mySignature.photoUrl) || session?.user?.image || undefined
+    ? signedUiPhotoSrc(mySignature.photoUrl, mySignature.email) ||
+      session?.user?.image ||
+      undefined
     : session?.user?.image || undefined;
 
   return (

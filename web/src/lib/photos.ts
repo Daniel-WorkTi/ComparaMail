@@ -1,10 +1,18 @@
 import { extractDriveFileId } from "@/lib/import";
-import { signedPhotoPath } from "@/lib/photo-sign";
 import { safeImageUrl } from "@/lib/security";
 
 /** Foto ainda aponta para Google Drive (lh3…/d/ID ou ID cru). */
 export function isDrivePhotoUrl(photoUrl: string): boolean {
   return Boolean(extractDriveFileId(photoUrl));
+}
+
+/** Fotos que quebram no Gmail (localhost ou ficheiros só no PC). */
+export function isFragilePhotoUrl(photoUrl: string): boolean {
+  const u = (photoUrl || "").trim().toLowerCase();
+  if (!u) return true;
+  if (u.includes("localhost") || u.includes("127.0.0.1")) return true;
+  if (u.includes("/workspace-photos/")) return true;
+  return false;
 }
 
 /** Converte URLs absolutas de dev (localhost/workspace-photos) em path relativo. */
@@ -25,46 +33,27 @@ export function normalizePhotoStorageUrl(photoUrl: string): string {
   return raw;
 }
 
+export function emailFromWorkspacePath(photoUrl: string): string | null {
+  const url = normalizePhotoStorageUrl(photoUrl);
+  const m = url.match(/\/workspace-photos\/([^/?#]+)\.(png|jpe?g|webp)$/i);
+  if (!m) return null;
+  try {
+    return decodeURIComponent(m[1]).toLowerCase().trim();
+  } catch {
+    return m[1].toLowerCase().trim();
+  }
+}
+
 /**
- * URL para a UI (proxy local).
- * Preferir passar já um path `/api/photo/...` assinado a partir do servidor.
- * Se receber URL Drive, devolve path sem assinatura (exige sessão).
+ * URL para a UI (client-safe — sem crypto).
+ * Drive → /api/photo/ID (sessão); Workspace local → /workspace-photos/...
  */
 export function uiPhotoSrc(photoUrl: string): string {
   const url = normalizePhotoStorageUrl(photoUrl);
-  if (url.startsWith("/api/photo/")) return url;
+  if (url.startsWith("/api/photo/") || url.startsWith("/api/wphoto/")) return url;
   if (url.startsWith("/workspace-photos/")) return url;
   const id = extractDriveFileId(url);
   if (id) return `/api/photo/${id}`;
-  return safeImageUrl(url) || "";
-}
-
-/**
- * URL para HTML da assinatura.
- * - preview (sem origin): path relativo assinado → funciona no browser
- * - email (com origin): URL absoluta assinada → funciona no Gmail
- */
-export function emailPhotoSrc(photoUrl: string, origin?: string): string {
-  const url = normalizePhotoStorageUrl(photoUrl);
-  const id = extractDriveFileId(url);
-  if (id) {
-    const path = signedPhotoPath(id);
-    const base = (origin || "").replace(/\/$/, "");
-    return base ? `${base}${path}` : path;
-  }
-  if (url.startsWith("/")) {
-    const base = (origin || "").replace(/\/$/, "");
-    return base ? `${base}${url}` : url;
-  }
-  return safeImageUrl(url) || "";
-}
-
-/** Path assinado para avatares na listagem (gerar só no servidor). */
-export function signedUiPhotoSrc(photoUrl: string): string {
-  const url = normalizePhotoStorageUrl(photoUrl);
-  const id = extractDriveFileId(url);
-  if (id) return signedPhotoPath(id);
-  if (url.startsWith("/workspace-photos/")) return url;
   return safeImageUrl(url) || "";
 }
 
