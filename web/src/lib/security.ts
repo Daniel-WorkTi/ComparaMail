@@ -132,6 +132,9 @@ export function safeImageUrl(value: string): string {
   }
   if (raw.startsWith("/") && !raw.startsWith("//") && !raw.includes("\\")) {
     if (raw.includes("://")) return "";
+    // Fotos Workspace servidas de /public/workspace-photos
+    if (raw.startsWith("/workspace-photos/")) return raw;
+    if (raw.startsWith("/api/photo/")) return raw;
     return raw;
   }
   try {
