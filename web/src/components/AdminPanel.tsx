@@ -364,10 +364,10 @@ export function AdminPanel({
             </h2>
             <p className="mt-1 text-sm text-[var(--muted)]">
               Sincroniza <strong>email</strong>, <strong>cargo</strong>,{" "}
-              <strong>telemóvel</strong> e <strong>foto</strong> do Google Workspace. Os nomes
-              locais não mudam. Depois podes instalar no Gmail como{" "}
-              <strong>MailCJ2026</strong> (assinatura ativa da conta — aparece em novos
-              emails).
+              <strong>telemóvel</strong> e <strong>foto do Workspace</strong> (substitui
+              fotos antigas do Drive). Os nomes locais não mudam. Depois podes instalar no
+              Gmail como <strong>MailCJ2026</strong> (assinatura ativa da conta — aparece em
+              novos emails).
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <button

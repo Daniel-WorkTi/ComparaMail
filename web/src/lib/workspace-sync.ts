@@ -2,6 +2,7 @@ import {
   listWorkspaceEmailsAndTitles,
   resolveWorkspacePhotoUrl,
 } from "@/lib/google-workspace";
+import { isDrivePhotoUrl } from "@/lib/photos";
 import { getStore, saveStore } from "@/lib/storage";
 
 export type WorkspaceSyncResult = {
@@ -66,13 +67,16 @@ export async function syncEmailsAndTitlesFromWorkspace(): Promise<WorkspaceSyncR
       changed = true;
     }
 
-    // Foto: tenta Blob/local a partir do Directory; senão thumbnail URL
+    // Foto Workspace: substitui Drive/local quando o Directory tiver foto
     try {
       const photoUrl = await resolveWorkspacePhotoUrl(
         remoteUser.email,
         remoteUser.thumbnailPhotoUrl,
       );
-      if (photoUrl && person.photoUrl !== photoUrl) {
+      const shouldUpdatePhoto =
+        photoUrl &&
+        (person.photoUrl !== photoUrl || isDrivePhotoUrl(person.photoUrl));
+      if (shouldUpdatePhoto) {
         person.photoUrl = photoUrl;
         updatedPhoto += 1;
         changed = true;

@@ -1,8 +1,8 @@
-import { SignJWT, jwtVerify } from "jose";
+import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { auth, isAdminEmail } from "@/auth";
-import { getAccessPassword, isSignaturesPublic } from "@/lib/access";
-import { isProductionRuntime, safeEqualString } from "@/lib/security";
+import { isSignaturesPublic } from "@/lib/access";
+import { isProductionRuntime } from "@/lib/security";
 
 const ACCESS_COOKIE = "cj_app_access";
 
@@ -17,29 +17,13 @@ function secretKey() {
   return new TextEncoder().encode(secret);
 }
 
-export async function createPasswordSession() {
-  const token = await new SignJWT({ access: "ok" })
-    .setProtectedHeader({ alg: "HS256" })
-    .setIssuedAt()
-    .setExpirationTime("30d")
-    .sign(secretKey());
-
-  const jar = await cookies();
-  jar.set(ACCESS_COOKIE, token, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: isProductionRuntime(),
-    path: "/",
-    maxAge: 60 * 60 * 24 * 30,
-  });
-}
-
+/** Limpa cookie legado de password (sessões antigas). */
 export async function destroyPasswordSession() {
   const jar = await cookies();
   jar.delete(ACCESS_COOKIE);
 }
 
-async function hasPasswordSession(): Promise<boolean> {
+async function hasLegacyPasswordSession(): Promise<boolean> {
   const jar = await cookies();
   const token = jar.get(ACCESS_COOKIE)?.value;
   if (!token) return false;
@@ -52,7 +36,6 @@ async function hasPasswordSession(): Promise<boolean> {
 }
 
 export async function isAuthenticated(): Promise<boolean> {
-  // Em produção nunca permitir bypass público
   if (isSignaturesPublic()) {
     if (isProductionRuntime()) return false;
     return true;
@@ -61,13 +44,14 @@ export async function isAuthenticated(): Promise<boolean> {
   const session = await auth();
   if (session?.user?.email) return true;
 
-  return hasPasswordSession();
+  // Sessão password legada: não autentica (força re-login Google)
+  if (await hasLegacyPasswordSession()) {
+    await destroyPasswordSession();
+  }
+  return false;
 }
 
-/**
- * Admin só se o email da sessão Google estiver em ADMIN_EMAILS.
- * Fail-closed: lista vazia = ninguém. Password local sem email = nunca admin.
- */
+/** Admin só se o email Google estiver em ADMIN_EMAILS. */
 export async function isAdminUser(): Promise<boolean> {
   const session = await auth();
   const email = session?.user?.email;
@@ -75,17 +59,12 @@ export async function isAdminUser(): Promise<boolean> {
   return isAdminEmail(email);
 }
 
-/** Email da sessão Google ou null (password local não tem email). */
 export async function sessionEmail(): Promise<string | null> {
   const session = await auth();
   const email = session?.user?.email?.toLowerCase().trim();
   return email || null;
 }
 
-/**
- * Não-admin só acede à própria assinatura.
- * Admin (email em ADMIN_EMAILS) acede a todas.
- */
 export async function canAccessPersonEmail(
   personEmail?: string | null,
 ): Promise<boolean> {
@@ -93,12 +72,4 @@ export async function canAccessPersonEmail(
   const mine = await sessionEmail();
   if (!mine || !personEmail) return false;
   return mine === personEmail.toLowerCase().trim();
-}
-
-export function checkPassword(password: string): boolean {
-  const expected = getAccessPassword();
-  if (!expected || !password) return false;
-  // Em produção a API já bloqueia; reforço extra
-  if (isProductionRuntime()) return false;
-  return safeEqualString(password, expected);
 }
