@@ -7,6 +7,7 @@ export function renderSignatureHtml(
   settings: CompanySettings,
   options?: { origin?: string; mode?: "email" | "preview" },
 ): string {
+  // Todos os campos de texto dinâmicos passam por escapeHtml antes de ir para o HTML.
   const name = escapeHtml(person.name);
   const title = escapeHtml(person.title);
   const brand = escapeHtml(settings.brandColor || "#45668E");

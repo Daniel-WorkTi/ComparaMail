@@ -7,14 +7,9 @@ import { GmailInstallGuide } from "@/components/GmailInstallGuide";
 type Props = {
   html: string;
   slug: string;
-  previewId?: string;
 };
 
-export function SignatureInstallPanel({
-  html,
-  slug,
-  previewId = "signature-preview",
-}: Props) {
+export function SignatureInstallPanel({ html, slug }: Props) {
   const [status, setStatus] = useState<"idle" | "ok" | "fallback" | "error">("idle");
   const [guideOpen, setGuideOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -32,6 +27,7 @@ export function SignatureInstallPanel({
   }, []);
 
   async function handleCopy() {
+    // Usa sempre a string HTML original — nunca o DOM do iframe sandboxed.
     try {
       if (typeof ClipboardItem !== "undefined" && navigator.clipboard?.write) {
         await navigator.clipboard.write([
@@ -44,25 +40,30 @@ export function SignatureInstallPanel({
         setTimeout(() => setStatus("idle"), 2800);
         return;
       }
-      throw new Error("Clipboard API limited");
-    } catch {
-      const el = document.getElementById(previewId);
-      if (el) {
-        const range = document.createRange();
-        range.selectNodeContents(el);
-        const selection = window.getSelection();
-        selection?.removeAllRanges();
-        selection?.addRange(range);
-        try {
-          document.execCommand("copy");
-          setStatus("fallback");
-        } catch {
-          setStatus("error");
-        }
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(html);
+        setStatus("fallback");
         setTimeout(() => setStatus("idle"), 3500);
         return;
       }
-      setStatus("error");
+      throw new Error("Clipboard API unavailable");
+    } catch {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = html;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        if (!ok) throw new Error("execCommand failed");
+        setStatus("fallback");
+        setTimeout(() => setStatus("idle"), 3500);
+      } catch {
+        setStatus("error");
+      }
     }
   }
 
