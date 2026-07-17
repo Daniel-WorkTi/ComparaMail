@@ -156,18 +156,14 @@ ADMIN_EMAILS=admin@comparaja.pt,it@comparaja.pt
 | Lista **vazia** | **Ninguém** é admin (dev e produção) |
 | Email na lista | Admin completo (`/admin`, APIs mutáveis, workspace) |
 | Email fora da lista | Utilizador normal — só vê a **própria** assinatura |
-| Login por password | **Nunca** concede admin (sessão sem email) |
 
 `isAdmin` é recalculado em cada pedido JWT/session — alterar `ADMIN_EMAILS` não exige re-login.
 
-### Password local — só non-prod
+### Login — apenas Google Workspace
 
-| Ambiente | Comportamento |
-|----------|---------------|
-| Desenvolvimento | `ACCESS_PASSWORD` ativa form em `/login` |
-| Produção | API `/api/auth/password` retorna **403**; `hasAccessPassword()` é sempre `false` |
-
-A password cria cookie JWT `cj_app_access` (httpOnly, SameSite=Lax, 30 dias). Serve para testar sem Google OAuth; **não substitui** OAuth em produção.
+- Sem password / formulário local
+- API `/api/auth/password` retorna **404**
+- Contas Gmail pessoais rejeitadas (`email_verified` + `hd` + sufixo `@comparaja.pt`)
 
 ### Modo público — bloqueado em produção
 
@@ -175,18 +171,17 @@ A password cria cookie JWT `cj_app_access` (httpOnly, SameSite=Lax, 30 dias). Se
 
 ### Matriz de acesso
 
-| Recurso | Não autenticado | Password (dev) | Google normal | Admin |
-|---------|-----------------|----------------|---------------|-------|
-| `/`, `/s/*` | ❌ | ✅ (todas*) | ✅ (própria**) | ✅ (todas) |
-| `/admin` | ❌ | ❌ | ❌ | ✅ |
-| `/api/people/*` | ❌ | ❌ | ❌ | ✅ |
-| `/api/workspace/*` | ❌ | ❌ | ❌ | ✅ |
-| `/api/html/[slug]` | ❌ | ✅ | ✅ (própria) | ✅ |
-| `/api/photo/[id]` | ❌*** | ✅ | ✅ | ✅ |
+| Recurso | Não autenticado | Google normal | Admin |
+|---------|-----------------|---------------|-------|
+| `/`, `/s/*` | ❌ | ✅ (própria*) | ✅ (todas) |
+| `/admin` | ❌ | ❌ | ✅ |
+| `/api/people/*` | ❌ | ❌ | ✅ |
+| `/api/workspace/*` | ❌ | ❌ | ✅ |
+| `/api/html/[slug]` | ❌ | ✅ (própria) | ✅ |
+| `/api/photo/[id]` | ❌** | ✅ | ✅ |
 
-\* Password em dev vê todas as assinaturas (sem email para filtrar).  
-\** Filtrado por `canAccessPersonEmail()` — email da sessão = email da pessoa.  
-\*** Exceto com token HMAC assinado (`?e=&s=`) para clientes de email.
+\* Filtrado por `canAccessPersonEmail()` — email da sessão = email da pessoa.  
+\** Exceto com token HMAC assinado (`?e=&s=`) para clientes de email.
 
 ---
 

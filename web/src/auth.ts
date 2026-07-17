@@ -62,10 +62,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async signIn({ profile }) {
       const p = profile as GoogleProfile | undefined;
       if (!p) return false;
-      // Exigir claims Google Workspace — não confiar só em email.endsWith
       if (p.email_verified !== true) return false;
       if ((p.hd || "").toLowerCase() !== ALLOWED_DOMAIN) return false;
-      if (!p.email) return false;
+      const email = (p.email || "").toLowerCase().trim();
+      if (!email || !email.endsWith(`@${ALLOWED_DOMAIN}`)) return false;
       return true;
     },
     async jwt({ token, user }) {

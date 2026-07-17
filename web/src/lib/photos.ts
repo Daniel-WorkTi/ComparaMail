@@ -2,6 +2,11 @@ import { extractDriveFileId } from "@/lib/import";
 import { signedPhotoPath } from "@/lib/photo-sign";
 import { safeImageUrl } from "@/lib/security";
 
+/** Foto ainda aponta para Google Drive (lh3…/d/ID ou ID cru). */
+export function isDrivePhotoUrl(photoUrl: string): boolean {
+  return Boolean(extractDriveFileId(photoUrl));
+}
+
 /**
  * URL para a UI (proxy local).
  * Preferir passar já um path `/api/photo/...` assinado a partir do servidor.

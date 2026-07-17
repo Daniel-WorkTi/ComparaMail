@@ -15,7 +15,7 @@ export type AccessDenied = {
 
 export type AccessResult = AccessOk | AccessDenied;
 
-/** Qualquer utilizador autenticado (Google ou password local em non-prod). */
+/** Utilizador autenticado via Google Workspace. */
 export async function requireUser(): Promise<AccessResult> {
   if (!(await isAuthenticated())) {
     return {

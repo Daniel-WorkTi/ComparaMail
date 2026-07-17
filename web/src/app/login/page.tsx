@@ -1,9 +1,8 @@
 import { googleReady, signIn } from "@/auth";
-import { hasAccessPassword, isSignaturesPublic } from "@/lib/access";
+import { isSignaturesPublic } from "@/lib/access";
 import { isAuthenticated } from "@/lib/auth";
 import { safeRedirectPath } from "@/lib/security";
 import { redirect } from "next/navigation";
-import { PasswordLoginForm } from "@/components/PasswordLoginForm";
 
 type Props = {
   searchParams: Promise<{ error?: string; callbackUrl?: string }>;
@@ -43,10 +42,6 @@ export default async function LoginPage({ searchParams }: Props) {
     params.error === "Configuration" ||
     Boolean(params.error && params.error !== "CredentialsSignin");
 
-  const showPassword = hasAccessPassword();
-  const showGoogle = googleReady;
-  const showDivider = showPassword && showGoogle;
-
   return (
     <main className="login-page">
       <div className="login-center">
@@ -60,7 +55,9 @@ export default async function LoginPage({ searchParams }: Props) {
         <div className="login-card">
           <div className="text-center">
             <h1>Entrar</h1>
-            <p className="login-card-lede">Utiliza a tua conta corporativa para continuar.</p>
+            <p className="login-card-lede">
+              Utiliza a tua conta Google <strong>@comparaja.pt</strong> (Workspace).
+            </p>
           </div>
 
           {isSignaturesPublic() && (
@@ -69,18 +66,20 @@ export default async function LoginPage({ searchParams }: Props) {
 
           {denied && (
             <p className="login-alert login-alert-danger">
-              Acesso negado. Só contas <strong>@comparaja.pt</strong> podem entrar com Google.
+              Acesso negado. Só contas Google Workspace <strong>@comparaja.pt</strong>{" "}
+              verificadas podem entrar. Contas Gmail pessoais não são aceites.
             </p>
           )}
 
-          {!showPassword && !showGoogle && (
+          {!googleReady && (
             <p className="login-alert login-alert-warn">
-              Define <code>ACCESS_PASSWORD</code> no <code>.env.local</code>.
+              Google OAuth não configurado. Define <code>GOOGLE_CLIENT_ID</code> e{" "}
+              <code>GOOGLE_CLIENT_SECRET</code> no ambiente.
             </p>
           )}
 
           <div className="login-actions">
-            {showGoogle && (
+            {googleReady && (
               <form
                 action={async () => {
                   "use server";
@@ -95,14 +94,6 @@ export default async function LoginPage({ searchParams }: Props) {
                 </button>
               </form>
             )}
-
-            {showDivider && (
-              <div className="login-divider">
-                <span>ou</span>
-              </div>
-            )}
-
-            {showPassword && <PasswordLoginForm compact />}
           </div>
 
           <p className="login-secure">

@@ -13,7 +13,7 @@ Sistema web interno para gerar, hospedar, copiar e publicar assinaturas de email
 | `/s/[slug]` | Pré-visualização + copiar HTML para o Gmail |
 | `/api/html/[slug]` | HTML cru da assinatura |
 | `/admin` | CRUD pessoas, CSV, settings, sync/publish Google Workspace |
-| `/login` | Google OAuth `@comparaja.pt` (+ password só em dev) |
+| `/login` | Google OAuth `@comparaja.pt` (Workspace) |
 
 Template: **modelo 01** (table-based, compatível Gmail). Assinatura instalada via API: **MailCJ2026**.
 
