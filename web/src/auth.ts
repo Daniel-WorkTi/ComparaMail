@@ -10,12 +10,6 @@ const googleReady = Boolean(
   process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET,
 );
 
-function isCompanyEmail(email?: string | null): boolean {
-  if (!email) return false;
-  const normalized = email.toLowerCase().trim();
-  return normalized.endsWith(`@${ALLOWED_DOMAIN}`);
-}
-
 function parseAdminEmails(): string[] {
   return (process.env.ADMIN_EMAILS || "")
     .split(",")
@@ -23,19 +17,22 @@ function parseAdminEmails(): string[] {
     .filter(Boolean);
 }
 
+/**
+ * Fail-closed: ADMIN_EMAILS vazio = ninguém é admin (dev e produção).
+ * Não concede admin só por domínio.
+ */
 export function isAdminEmail(email?: string | null): boolean {
-  if (!isCompanyEmail(email)) return false;
+  if (!email) return false;
   const admins = parseAdminEmails();
-  // Em produção: lista vazia = ninguém admin (fail closed)
-  if (admins.length === 0) {
-    if (process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production") {
-      return false;
-    }
-    // Em local, se não houver lista, toda a empresa pode administrar
-    return true;
-  }
-  return admins.includes(email!.toLowerCase().trim());
+  if (admins.length === 0) return false;
+  return admins.includes(email.toLowerCase().trim());
 }
+
+type GoogleProfile = {
+  email?: string;
+  email_verified?: boolean;
+  hd?: string;
+};
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret:
@@ -62,21 +59,31 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     error: "/login",
   },
   callbacks: {
-    async signIn({ user }) {
-      return isCompanyEmail(user.email);
+    async signIn({ profile }) {
+      const p = profile as GoogleProfile | undefined;
+      if (!p) return false;
+      // Exigir claims Google Workspace — não confiar só em email.endsWith
+      if (p.email_verified !== true) return false;
+      if ((p.hd || "").toLowerCase() !== ALLOWED_DOMAIN) return false;
+      if (!p.email) return false;
+      return true;
     },
     async jwt({ token, user }) {
-      const email = (user?.email || token.email || "").toLowerCase();
+      const email = (user?.email || token.email || "").toLowerCase().trim();
       if (email) {
         token.email = email;
-        token.isAdmin = isAdminEmail(email);
       }
+      // Recalcular em cada pedido — ADMIN_EMAILS pode mudar sem re-login
+      token.isAdmin = isAdminEmail(
+        (token.email as string | undefined) || null,
+      );
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.email = (token.email as string) || session.user.email;
-        session.user.isAdmin = Boolean(token.isAdmin);
+        // Recalcular a partir de ADMIN_EMAILS (não só JWT stale)
+        session.user.isAdmin = isAdminEmail(session.user.email);
       }
       return session;
     },
@@ -84,4 +91,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
 });
 
-export { googleReady };
+export { googleReady, ALLOWED_DOMAIN };

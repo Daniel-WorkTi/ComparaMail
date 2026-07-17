@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { isAdminUser } from "@/lib/auth";
+import { requireAdmin } from "@/lib/access-control";
 import {
   mergeImport,
   parseCsv,
@@ -18,9 +18,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Origem não permitida" }, { status: 403 });
   }
 
-  if (!(await isAdminUser())) {
-    return NextResponse.json({ error: "Sem permissão de admin" }, { status: 403 });
-  }
+  const access = await requireAdmin();
+  if (!access.ok) return access.response;
 
   const raw = await request.text();
   if (raw.length > MAX_CSV_CHARS + 50_000) {
