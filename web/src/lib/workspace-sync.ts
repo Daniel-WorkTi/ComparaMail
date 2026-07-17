@@ -2,7 +2,7 @@ import {
   listWorkspaceEmailsAndTitles,
   resolveWorkspacePhotoUrl,
 } from "@/lib/google-workspace";
-import { isDrivePhotoUrl } from "@/lib/photos";
+import { isDrivePhotoUrl, isFragilePhotoUrl } from "@/lib/photos";
 import { getStore, saveStore } from "@/lib/storage";
 
 export type WorkspaceSyncResult = {
@@ -75,7 +75,9 @@ export async function syncEmailsAndTitlesFromWorkspace(): Promise<WorkspaceSyncR
       );
       const shouldUpdatePhoto =
         photoUrl &&
-        (person.photoUrl !== photoUrl || isDrivePhotoUrl(person.photoUrl));
+        (person.photoUrl !== photoUrl ||
+          isDrivePhotoUrl(person.photoUrl) ||
+          isFragilePhotoUrl(person.photoUrl));
       if (shouldUpdatePhoto) {
         person.photoUrl = photoUrl;
         updatedPhoto += 1;

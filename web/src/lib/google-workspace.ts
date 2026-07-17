@@ -265,8 +265,41 @@ export async function listWorkspaceEmailsAndTitles(): Promise<WorkspaceUser[]> {
 }
 
 /**
- * Obtém foto de perfil do Workspace e devolve URL estável para a assinatura.
- * Preferência: upload público no Vercel Blob; senão thumbnailPhotoUrl do Directory.
+ * Bytes da foto de perfil no Directory (para proxy /api/wphoto e sync).
+ */
+export async function fetchWorkspacePhotoBytes(
+  userEmail: string,
+): Promise<{ bytes: Buffer; contentType: string } | null> {
+  const email = userEmail.toLowerCase().trim();
+  if (!email) return null;
+  try {
+    const admin = adminEmail();
+    const res = await authedFetch(
+      admin,
+      [DIRECTORY_SCOPE],
+      `https://admin.googleapis.com/admin/directory/v1/users/${encodeURIComponent(email)}/photos/thumbnail`,
+    );
+    if (!res.ok) return null;
+    const data = (await res.json()) as {
+      photoData?: string;
+      mimeType?: string;
+    };
+    if (!data.photoData) return null;
+    const b64 = data.photoData.replace(/-/g, "+").replace(/_/g, "/");
+    const bytes = Buffer.from(b64, "base64");
+    if (!bytes.byteLength) return null;
+    return {
+      bytes,
+      contentType: data.mimeType || "image/jpeg",
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * URL estável para gravar em people.json / Gmail.
+ * Preferência: Vercel Blob (HTTPS) → thumbnail Directory (HTTPS) → path local só em dev.
  */
 export async function resolveWorkspacePhotoUrl(
   userEmail: string,
@@ -275,56 +308,59 @@ export async function resolveWorkspacePhotoUrl(
   const email = userEmail.toLowerCase().trim();
   if (!email) return null;
 
-  const admin = adminEmail();
+  const thumb = (thumbnailPhotoUrl || "").trim();
+  const fromApi = await fetchWorkspacePhotoBytes(email);
 
-  try {
-    const res = await authedFetch(
-      admin,
-      [DIRECTORY_SCOPE],
-      `https://admin.googleapis.com/admin/directory/v1/users/${encodeURIComponent(email)}/photos/thumbnail`,
-    );
+  if (fromApi) {
+    const ext = fromApi.contentType.includes("png") ? "png" : "jpg";
+    const safeName = email.replace(/[^a-z0-9@._-]/gi, "_");
 
-    if (res.ok) {
-      const data = (await res.json()) as {
-        photoData?: string;
-        mimeType?: string;
-      };
-      if (data.photoData) {
-        const b64 = data.photoData.replace(/-/g, "+").replace(/_/g, "/");
-        const bytes = Buffer.from(b64, "base64");
-        const mime = data.mimeType || "image/jpeg";
-        const ext = mime.includes("png") ? "png" : "jpg";
-        const safeName = email.replace(/[^a-z0-9@._-]/gi, "_");
-
-        if (process.env.BLOB_READ_WRITE_TOKEN) {
-          const { put } = await import("@vercel/blob");
-          const blob = await put(`workspace-photos/${safeName}.${ext}`, bytes, {
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      try {
+        const { put } = await import("@vercel/blob");
+        const blob = await put(
+          `workspace-photos/${safeName}.${ext}`,
+          fromApi.bytes,
+          {
             access: "public",
-            contentType: mime,
+            contentType: fromApi.contentType,
             addRandomSuffix: false,
             allowOverwrite: true,
-          });
-          return blob.url;
-        }
-
-        // Local: grava em public/workspace-photos (dev)
-        if (process.env.NODE_ENV !== "production") {
-          const { mkdir, writeFile } = await import("fs/promises");
-          const pathMod = await import("path");
-          const dir = pathMod.join(process.cwd(), "public", "workspace-photos");
-          await mkdir(dir, { recursive: true });
-          const file = pathMod.join(dir, `${safeName}.${ext}`);
-          await writeFile(file, bytes);
-          return `/workspace-photos/${safeName}.${ext}`;
-        }
+          },
+        );
+        return blob.url;
+      } catch {
+        // continua
       }
     }
-  } catch {
-    // fallback abaixo
+
+    // Cache local para UI em dev (não usar este path no Gmail — emailPhotoSrc faz proxy)
+    if (process.env.NODE_ENV !== "production") {
+      try {
+        const { mkdir, writeFile } = await import("fs/promises");
+        const pathMod = await import("path");
+        const dir = pathMod.join(process.cwd(), "public", "workspace-photos");
+        await mkdir(dir, { recursive: true });
+        await writeFile(
+          pathMod.join(dir, `${safeName}.${ext}`),
+          fromApi.bytes,
+        );
+      } catch {
+        // ignore
+      }
+    }
   }
 
-  const thumb = (thumbnailPhotoUrl || "").trim();
+  // HTTPS do Google — funciona no Gmail sem depender do nosso host
   if (thumb.startsWith("https://")) return thumb;
+
+  // Último recurso: path local (só útil na UI; Gmail usa /api/wphoto)
+  if (fromApi && process.env.NODE_ENV !== "production") {
+    const ext = fromApi.contentType.includes("png") ? "png" : "jpg";
+    const safeName = email.replace(/[^a-z0-9@._-]/gi, "_");
+    return `/workspace-photos/${safeName}.${ext}`;
+  }
+
   return null;
 }
 

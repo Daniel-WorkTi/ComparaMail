@@ -1,5 +1,6 @@
 import { createHmac } from "crypto";
-import { isProductionRuntime, safeEqualString } from "@/lib/security";
+import { isProductionRuntime } from "@/lib/runtime";
+import { safeEqualString } from "@/lib/security";
 
 function signingSecret(): string {
   const secret = process.env.AUTH_SECRET;
@@ -37,4 +38,45 @@ export function signedPhotoPath(
   const exp = Math.floor(Date.now() / 1000) + ttlSec;
   const s = signPhotoToken(id, exp);
   return `/api/photo/${id}?e=${exp}&s=${s}`;
+}
+
+/** Token estável para email (base64url). */
+export function workspacePhotoToken(email: string): string {
+  return Buffer.from(email.toLowerCase().trim(), "utf8").toString("base64url");
+}
+
+export function emailFromWorkspacePhotoToken(token: string): string | null {
+  try {
+    const email = Buffer.from(token, "base64url")
+      .toString("utf8")
+      .toLowerCase()
+      .trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return null;
+    return email;
+  } catch {
+    return null;
+  }
+}
+
+/** Path assinado para foto Workspace via /api/wphoto (Gmail-safe). */
+export function signedWorkspacePhotoPath(
+  email: string,
+  ttlSec = 60 * 60 * 24 * 365,
+): string {
+  const id = workspacePhotoToken(email);
+  const exp = Math.floor(Date.now() / 1000) + ttlSec;
+  const s = signPhotoToken(`wphoto:${id}`, exp);
+  return `/api/wphoto/${id}?e=${exp}&s=${s}`;
+}
+
+export function verifyWorkspacePhotoToken(
+  id: string,
+  expUnix: number,
+  sig: string | null | undefined,
+): boolean {
+  if (!sig || !Number.isFinite(expUnix)) return false;
+  if (expUnix < Math.floor(Date.now() / 1000)) return false;
+  if (expUnix > Math.floor(Date.now() / 1000) + 63072000) return false;
+  const expected = signPhotoToken(`wphoto:${id}`, expUnix);
+  return safeEqualString(expected, sig);
 }

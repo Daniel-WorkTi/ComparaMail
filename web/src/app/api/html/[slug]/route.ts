@@ -46,8 +46,14 @@ export async function GET(_request: Request, { params }: Params) {
     return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
   }
 
-  const [settings, origin] = await Promise.all([getSettings(), resolveAppOrigin()]);
-  const html = renderSignatureHtml(person, settings, { origin });
+  const [settings, origin] = await Promise.all([
+    getSettings(),
+    resolveAppOrigin(),
+  ]);
+  const html = renderSignatureHtml(person, settings, {
+    origin,
+    mode: "email",
+  });
   return new NextResponse(html, {
     headers: {
       ...HTML_SECURITY_HEADERS,

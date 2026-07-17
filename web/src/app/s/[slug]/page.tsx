@@ -12,7 +12,7 @@ import {
 } from "@/lib/auth";
 import { getPersonByEmail, getPersonBySlug, getSettings } from "@/lib/people";
 import { resolveAppOrigin } from "@/lib/origin";
-import { signedUiPhotoSrc } from "@/lib/photos";
+import { signedUiPhotoSrc } from "@/lib/photos-server";
 import { renderSignatureHtml } from "@/lib/template";
 
 export const dynamic = "force-dynamic";
@@ -54,7 +54,9 @@ export default async function SignaturePage({ params }: Props) {
   const userName =
     session?.user?.name || mySignature?.name || (email ? email.split("@")[0] : "Utilizador");
   const userPhoto = mySignature
-    ? signedUiPhotoSrc(mySignature.photoUrl) || session?.user?.image || undefined
+    ? signedUiPhotoSrc(mySignature.photoUrl, mySignature.email) ||
+      session?.user?.image ||
+      undefined
     : session?.user?.image || undefined;
 
   return (

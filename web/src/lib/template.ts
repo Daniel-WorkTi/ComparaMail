@@ -1,5 +1,5 @@
 import type { CompanySettings, Person } from "./types";
-import { emailPhotoSrc } from "./photos";
+import { emailPhotoSrc } from "./photos-server";
 import { escapeHtml, safeHref } from "./security";
 
 /** Limite da Gmail API para o campo signature (sendAs). */
@@ -37,7 +37,9 @@ export function renderSignatureHtml(
   const brand = escapeHtml(settings.brandColor || "#45668E");
   const photoOrigin = mode === "preview" ? undefined : options?.origin;
   const logo = escapeHtml(emailPhotoSrc(settings.logoUrl, photoOrigin));
-  const photo = escapeHtml(emailPhotoSrc(person.photoUrl, photoOrigin));
+  const photo = escapeHtml(
+    emailPhotoSrc(person.photoUrl, photoOrigin, person.email),
+  );
   const website = escapeHtml(safeHref(settings.website, ["https:", "http:"]));
   const websiteLabel = escapeHtml(settings.websiteLabel);
   const address = escapeHtml(settings.address);
