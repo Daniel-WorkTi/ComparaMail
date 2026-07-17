@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { isProductionRuntime } from "@/lib/security";
+import { isProductionRuntime } from "@/lib/runtime";
 
 export function middleware(request: NextRequest) {
   // Bloqueia modo público acidental em produção

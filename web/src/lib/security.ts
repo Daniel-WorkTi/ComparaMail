@@ -1,12 +1,8 @@
 import { timingSafeEqual } from "crypto";
 import { NextResponse } from "next/server";
+import { isProductionRuntime } from "@/lib/runtime";
 
-export function isProductionRuntime(): boolean {
-  return (
-    process.env.NODE_ENV === "production" ||
-    process.env.VERCEL_ENV === "production"
-  );
-}
+export { isProductionRuntime };
 
 /** Só paths relativos internos (anti open-redirect). */
 export function safeRedirectPath(path?: string | null): string {
