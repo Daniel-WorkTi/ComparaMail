@@ -7,7 +7,7 @@ import {
 import { getPersonBySlug, getSettings, listPeople } from "@/lib/people";
 import { resolveAppOrigin } from "@/lib/origin";
 import { assertMutatingOrigin } from "@/lib/security";
-import { renderSignatureHtml } from "@/lib/template";
+import { renderSignatureHtml, GMAIL_SIGNATURE_MAX_CHARS } from "@/lib/template";
 
 type Body = {
   slug?: string;
@@ -81,6 +81,11 @@ export async function POST(request: Request) {
           origin,
           mode: "email",
         });
+        if (html.length > GMAIL_SIGNATURE_MAX_CHARS) {
+          throw new Error(
+            `Assinatura demasiado longa (${html.length}/${GMAIL_SIGNATURE_MAX_CHARS} chars). Encurta cargo/URL da foto.`,
+          );
+        }
         await publishGmailSignature(email, html);
         published.push(email);
       } catch (error) {
