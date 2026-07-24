@@ -1,5 +1,4 @@
 import { googleReady, signIn } from "@/auth";
-import { isSignaturesPublic } from "@/lib/access";
 import { isAuthenticated } from "@/lib/auth";
 import { safeRedirectPath } from "@/lib/security";
 import { redirect } from "next/navigation";
@@ -60,21 +59,16 @@ export default async function LoginPage({ searchParams }: Props) {
             </p>
           </div>
 
-          {isSignaturesPublic() && (
-            <p className="login-alert login-alert-ok">Modo público ativo.</p>
-          )}
-
           {denied && (
             <p className="login-alert login-alert-danger">
               Acesso negado. Só contas Google Workspace <strong>@comparaja.pt</strong>{" "}
-              verificadas podem entrar. Contas Gmail pessoais não são aceites.
+              verificadas podem entrar.
             </p>
           )}
 
           {!googleReady && (
             <p className="login-alert login-alert-warn">
-              Google OAuth não configurado. Define <code>GOOGLE_CLIENT_ID</code> e{" "}
-              <code>GOOGLE_CLIENT_SECRET</code> no ambiente.
+              Autenticação indisponível. Contacta a administração.
             </p>
           )}
 

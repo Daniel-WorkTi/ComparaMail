@@ -211,9 +211,7 @@ export async function pushTitlesToWorkspace(): Promise<WorkspacePushTitlesResult
   }
 
   if (updated === 0 && failed.length > 0) {
-    throw new Error(
-      `Nenhum cargo actualizado. Exemplo: ${failed[0].slice(0, 220)}`,
-    );
+    throw new Error("Nenhum cargo actualizado.");
   }
 
   return {

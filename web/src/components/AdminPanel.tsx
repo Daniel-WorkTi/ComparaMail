@@ -22,7 +22,6 @@ const emptyPerson = {
 type Props = {
   initialPeople: Person[];
   initialSettings: CompanySettings;
-  storageMode: string;
   userEmail: string;
   userName: string;
 };
@@ -30,7 +29,6 @@ type Props = {
 export function AdminPanel({
   initialPeople,
   initialSettings,
-  storageMode,
   userEmail,
   userName,
 }: Props) {
@@ -67,40 +65,17 @@ export function AdminPanel({
         const d = await r.json();
         const ready = Boolean(d.configured) && r.ok;
         setWorkspaceReady(ready);
-        if (!r.ok && d.error === "Sem permissão de admin") {
-          setWorkspaceHint(
-            d.configured
-              ? "Google Workspace está configurado, mas a tua sessão não é admin. Entra com um email listado em ADMIN_EMAILS."
-              : "A tua sessão não é admin. Entra com um email listado em ADMIN_EMAILS.",
-          );
+        if (!r.ok) {
+          setWorkspaceHint("Sem permissão de administração.");
         } else if (!d.configured) {
-          const dbg = d.debug;
-          if (dbg && !dbg.hasServiceAccount) {
-            const onVercel = Boolean(
-              typeof window !== "undefined" &&
-                /vercel\.app|comparamail/i.test(window.location.hostname),
-            );
-            setWorkspaceHint(
-              onVercel
-                ? "Service Account inválida na Vercel. Em Environment Variables usa GOOGLE_SERVICE_ACCOUNT_JSON_BASE64 (JSON completo em Base64) ou EMAIL+PRIVATE_KEY separados — o JSON numa linha costuma partir."
-                : "Service Account inválida no ambiente. O JSON no .env.local costuma partir-se: corre `node scripts/extract-sa-json.cjs` (cria web/.secrets/google-sa.json) e reinicia.",
-            );
-          } else if (dbg && !dbg.hasAdminEmail) {
-            setWorkspaceHint(
-              "Falta GOOGLE_WORKSPACE_ADMIN_EMAIL (o teu email @comparaja.pt de Super Admin).",
-            );
-          } else {
-            setWorkspaceHint(
-              "Ainda não configurado: GOOGLE_SERVICE_ACCOUNT_FILE ou JSON + GOOGLE_WORKSPACE_ADMIN_EMAIL.",
-            );
-          }
+          setWorkspaceHint("Integração Google indisponível.");
         } else {
           setWorkspaceHint("");
         }
       })
       .catch(() => {
         setWorkspaceReady(false);
-        setWorkspaceHint("Não foi possível verificar a configuração do Google Workspace.");
+        setWorkspaceHint("Integração Google indisponível.");
       });
   }, []);
 
@@ -150,11 +125,15 @@ export function AdminPanel({
       const r = data.result;
       if (!r) throw new Error("Sync sem resultado");
       showFeedback(
-        `Sync (só baixa): ${r.matched} match · cargos intactos · ${r.updatedPhone || 0} telemóveis · ${r.updatedPhoto || 0} fotos (${r.restoredDrivePhoto || 0} Drive) · ${r.googleUsers} users.`,
+        `Sincronização concluída: ${r.matched} correspondências · ${r.updatedPhone || 0} telemóveis · ${r.updatedPhoto || 0} fotos.`,
+        "success",
       );
       await refresh();
     } catch (err) {
-      showFeedback(err instanceof Error ? err.message : "Erro", "error");
+      showFeedback(
+        err instanceof Error ? err.message : "Falha na sincronização.",
+        "error",
+      );
     } finally {
       setBusyLabel(null);
     }
@@ -163,12 +142,12 @@ export function AdminPanel({
   async function pushTitlesWorkspace() {
     if (
       !confirm(
-        "Enviar os CARGOS da ComparaMail para o Google Workspace?\n\nIsto substitui o cargo antigo no perfil de cada colaborador no Admin Google. Nomes não mudam.",
+        "Enviar os cargos da ComparaMail para o Google Workspace?\nOs nomes não são alterados.",
       )
     ) {
       return;
     }
-    setBusyLabel("A enviar cargos para o Workspace...");
+    setBusyLabel("A enviar cargos...");
     setFeedback(null);
     try {
       const res = await fetch("/api/workspace/push-titles", { method: "POST" });
@@ -178,45 +157,34 @@ export function AdminPanel({
         result?: {
           updated: number;
           skipped: number;
-          failed?: string[];
+          failedCount?: number;
           googleUsers: number;
         };
       } = {};
       try {
         data = text ? JSON.parse(text) : {};
       } catch {
-        throw new Error(
-          text?.trim()
-            ? `Resposta inválida do servidor (${res.status})`
-            : `Servidor sem resposta (${res.status}). Tenta outra vez.`,
-        );
+        throw new Error("Resposta inválida do servidor.");
       }
       if (!res.ok) throw new Error(data.error || "Erro ao enviar cargos");
       const r = data.result;
       if (!r) throw new Error("Sem resultado");
-      const failN = r.failed?.length || 0;
-      const detail =
-        failN && r.failed?.[0]
-          ? ` Detalhe: ${r.failed[0].slice(0, 180)}`
-          : "";
+      const failN = r.failedCount || 0;
       if (!r.updated && failN) {
-        showFeedback(
-          `Cargos não foram enviados (${failN} falhas).${detail}`,
-          "error",
-        );
-      } else if (!r.updated && !failN) {
-        showFeedback(
-          `Nada a alterar: os ${r.skipped} cargos na app já são iguais aos do Workspace (ou sem email). Nota: isto actualiza o cargo no Admin Google, não a assinatura Gmail — para a assinatura usa “Publicar assinaturas no Gmail”.`,
-          "success",
-        );
+        showFeedback(`Cargos não actualizados (${failN} falhas).`, "error");
+      } else if (!r.updated) {
+        showFeedback("Nada a alterar — cargos já estão alinhados.", "success");
       } else {
         showFeedback(
-          `Cargos → Workspace: ${r.updated} actualizados · ${r.skipped} iguais/ignorados${failN ? ` · ${failN} falhas` : ""}.${detail}`,
+          `Cargos actualizados: ${r.updated}${failN ? ` · ${failN} falhas` : ""}.`,
           failN ? "error" : "success",
         );
       }
     } catch (err) {
-      showFeedback(err instanceof Error ? err.message : "Erro", "error");
+      showFeedback(
+        err instanceof Error ? err.message : "Falha ao enviar cargos.",
+        "error",
+      );
     } finally {
       setBusyLabel(null);
     }
@@ -244,33 +212,30 @@ export function AdminPanel({
         error?: string;
         brandName?: string;
         published?: number;
-        errors?: string[];
+        failedCount?: number;
       } = {};
       try {
         data = text ? JSON.parse(text) : {};
       } catch {
-        throw new Error(
-          text?.trim()
-            ? `Resposta inválida do servidor (${res.status})`
-            : `Servidor sem resposta (${res.status}). Reinicia o npm run dev e tenta outra vez.`,
-        );
+        throw new Error("Resposta inválida do servidor.");
       }
       if (!res.ok && !data.published) {
         throw new Error(data.error || "Erro ao publicar");
       }
       const brand = data.brandName || "MailCJ2026";
       const n = data.published || 0;
-      const failHint = data.errors?.length
-        ? `\nFalhas: ${data.errors.join(" | ")}`
-        : "";
+      const failN = data.failedCount || 0;
       showFeedback(
         n
-          ? `Gmail (${brand}): ${n} assinaturas publicadas.${failHint}\n\nPara aparecer ao escrever: Gmail → Definições → Assinatura → escolhe a assinatura em “Mensagens novas” e em “Respostas”. Depois abre um email NOVO (não só resposta).`
-          : `Nenhuma assinatura publicada.${failHint}`,
-        data.errors?.length && !n ? "error" : n ? "success" : "error",
+          ? `${n} assinaturas publicadas (${brand})${failN ? ` · ${failN} falhas` : ""}.`
+          : "Nenhuma assinatura publicada.",
+        n && !failN ? "success" : n ? "info" : "error",
       );
     } catch (err) {
-      showFeedback(err instanceof Error ? err.message : "Erro", "error");
+      showFeedback(
+        err instanceof Error ? err.message : "Falha ao publicar.",
+        "error",
+      );
     } finally {
       setBusyLabel(null);
     }
@@ -396,11 +361,6 @@ export function AdminPanel({
         <p className="home-lede">
           {userName || userEmail}
           {userEmail && userName ? ` · ${userEmail}` : ""}
-          {" · "}
-          Storage: <strong>{storageMode}</strong>
-          {storageMode === "file" && (
-            <> — em produção na Vercel, ativa Blob Storage para persistir alterações.</>
-          )}
         </p>
       </header>
 
@@ -436,24 +396,6 @@ export function AdminPanel({
             <h2 className="text-lg font-bold tracking-tight text-[var(--ink)]">
               Google Workspace
             </h2>
-            <p className="mt-1 text-sm text-[var(--muted)]">
-              <strong>Sincronizar</strong> só baixa email, telemóvel e fotos (Drive).{" "}
-              <strong>Nomes e cargos da app não mudam.</strong>{" "}
-              <strong>Enviar cargos</strong> sobe os cargos da ComparaMail para o{" "}
-              <strong>perfil no Google Admin</strong> (campo Título). Não muda a
-              assinatura no Gmail — isso é “Publicar assinaturas no Gmail”. Precisa do scope{" "}
-              <code className="text-[11px]">admin.directory.user</code> na
-              delegação do domínio.
-            </p>
-            <p className="mt-2 text-sm text-[var(--muted)]">
-              Se a assinatura <strong>não aparece ao escrever</strong>: no Gmail →
-              Definições → Ver todas → Geral → Assinatura, escolhe a assinatura em{" "}
-              <strong>Mensagens novas</strong> e também em{" "}
-              <strong>Respostas/reencaminhamentos</strong> (a API só grava o HTML;
-              o Gmail por vezes fica em “Sem assinatura”). Abre um{" "}
-              <strong>email novo</strong> (não só resposta) e usa modo rich text, não
-              texto simples. Atualiza a página do Gmail depois de publicar.
-            </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <button
                 type="button"
@@ -480,11 +422,8 @@ export function AdminPanel({
                 Publicar assinaturas no Gmail
               </button>
             </div>
-            {(workspaceHint || !workspaceReady) && (
-              <p className="mt-3 text-xs text-[var(--muted)]">
-                {workspaceHint ||
-                  "Ainda não configurado: define GOOGLE_SERVICE_ACCOUNT_JSON e GOOGLE_WORKSPACE_ADMIN_EMAIL no ambiente (e delegação no Google Admin)."}
-              </p>
+            {workspaceHint && (
+              <p className="mt-3 text-xs text-[var(--muted)]">{workspaceHint}</p>
             )}
           </section>
 
@@ -718,7 +657,7 @@ export function AdminPanel({
           </p>
           <textarea
             className="cj-textarea mt-4"
-            placeholder={`email,nome,cargo,foto\ndaniel.maia@comparaja.pt,Daniel Silva Maia,IT Support,1PVpbOtqpi4oFjq585U_YxnRL3yrixLmJ`}
+            placeholder={`email,nome,cargo,foto\npessoa@empresa.pt,Nome Exemplo,Cargo,DRIVE_FILE_ID`}
             value={csvText}
             onChange={(e) => setCsvText(e.target.value)}
           />
