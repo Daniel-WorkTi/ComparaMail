@@ -57,27 +57,23 @@ function imageResponse(
 }
 
 /**
- * Foto de perfil Google Workspace (a mesma do Gmail).
- * Acesso:
- * - domínio @comparaja.pt (público, rate-limited) — para Gmail
- * - ou sessão autenticada
- * - ou URL assinada (legado)
+ * Foto de perfil Google Workspace.
+ * Acesso: URL assinada (HMAC) OU sessão autenticada.
  */
 export async function GET(request: Request, { params }: Params) {
   const { id } = await params;
   if (!id || id.length > 200) {
-    return NextResponse.json({ error: "ID inválido" }, { status: 400 });
+    return NextResponse.json({ error: "Pedido inválido" }, { status: 400 });
   }
 
   const email = emailFromWorkspacePhotoToken(id);
   if (!email) {
-    return NextResponse.json({ error: "Token inválido" }, { status: 400 });
+    return NextResponse.json({ error: "Pedido inválido" }, { status: 400 });
   }
 
   const domain = allowedDomain();
-  const isCompanyEmail = email.endsWith(`@${domain}`);
-  if (!isCompanyEmail) {
-    return NextResponse.json({ error: "Email não permitido" }, { status: 403 });
+  if (!email.endsWith(`@${domain}`)) {
+    return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
   }
 
   const url = new URL(request.url);
@@ -94,9 +90,7 @@ export async function GET(request: Request, { params }: Params) {
     }
   }
 
-  // Empresa: permite sem cookie (Gmail). Rate limit forte.
-  const companyPublic = isCompanyEmail;
-  if (!signedOk && !authed && !companyPublic) {
+  if (!signedOk && !authed) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   }
 
@@ -117,12 +111,11 @@ export async function GET(request: Request, { params }: Params) {
 
   const local = await readLocalWorkspacePhoto(email);
   if (local) {
-    return imageResponse(local.bytes, local.contentType, true);
+    return imageResponse(local.bytes, local.contentType, signedOk);
   }
 
   const fromGoogle = await fetchWorkspacePhotoBytes(email);
   if (fromGoogle && fromGoogle.bytes.byteLength <= MAX_BYTES) {
-    // Cache em disco em runtime (dev e prod se filesystem permitir)
     try {
       const { mkdir, writeFile } = await import("fs/promises");
       const ext = fromGoogle.contentType.includes("png") ? "png" : "jpg";
@@ -131,10 +124,10 @@ export async function GET(request: Request, { params }: Params) {
       await mkdir(dir, { recursive: true });
       await writeFile(path.join(dir, `${safeName}.${ext}`), fromGoogle.bytes);
     } catch {
-      // Vercel serverless pode não persistir — ok
+      // FS efémero — ok
     }
-    return imageResponse(fromGoogle.bytes, fromGoogle.contentType, true);
+    return imageResponse(fromGoogle.bytes, fromGoogle.contentType, signedOk);
   }
 
-  return NextResponse.json({ error: "Foto não encontrada" }, { status: 404 });
+  return NextResponse.json({ error: "Não encontrado" }, { status: 404 });
 }

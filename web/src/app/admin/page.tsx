@@ -5,7 +5,6 @@ import { AppFooter } from "@/components/AppFooter";
 import { HomeHeader } from "@/components/HomeHeader";
 import { isAdminUser, isAuthenticated } from "@/lib/auth";
 import { getSettings, listPeople } from "@/lib/people";
-import { storageMode } from "@/lib/storage";
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +43,6 @@ export default async function AdminPage() {
         <AdminPanel
           initialPeople={people}
           initialSettings={settings}
-          storageMode={storageMode()}
           userEmail={session?.user?.email || ""}
           userName={session?.user?.name || ""}
         />

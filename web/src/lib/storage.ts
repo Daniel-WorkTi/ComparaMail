@@ -75,6 +75,9 @@ async function readFromBlob(): Promise<StoreData | null> {
 }
 
 export async function getStore(): Promise<StoreData> {
+  if (process.env.VERCEL && !hasBlob()) {
+    throw new Error("Storage Blob obrigatório em produção.");
+  }
   if (hasBlob()) {
     const fromBlob = await readFromBlob();
     if (fromBlob) return fromBlob;
@@ -86,6 +89,9 @@ export async function getStore(): Promise<StoreData> {
 }
 
 export async function saveStore(data: StoreData): Promise<void> {
+  if (process.env.VERCEL && !hasBlob()) {
+    throw new Error("Storage Blob obrigatório em produção.");
+  }
   const payload = JSON.stringify(data, null, 2);
 
   if (hasBlob()) {

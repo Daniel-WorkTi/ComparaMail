@@ -24,10 +24,7 @@ export async function POST(request: Request) {
     if (!access.ok) return access.response;
     if (!workspaceConfigured()) {
       return NextResponse.json(
-        {
-          error:
-            "Google Workspace não configurado. Define GOOGLE_SERVICE_ACCOUNT_FILE/.secrets ou JSON + GOOGLE_WORKSPACE_ADMIN_EMAIL.",
-        },
+        { error: "Integração Google não disponível." },
         { status: 400 },
       );
     }
@@ -92,9 +89,8 @@ export async function POST(request: Request) {
         await publishGmailSignature(email, html);
         published.push(email);
       } catch (error) {
-        errors.push(
-          `${email}: ${error instanceof Error ? error.message : "erro"}`,
-        );
+        console.error("[workspace/publish]", email, error);
+        errors.push(email);
       }
     }
 
@@ -103,15 +99,15 @@ export async function POST(request: Request) {
       brandName,
       published: published.length,
       emails: published,
-      errors,
+      failedCount: errors.length,
     });
   } catch (error) {
+    console.error("[workspace/publish]", error);
     return NextResponse.json(
       {
-        error:
-          error instanceof Error ? error.message : "Erro ao publicar no Gmail",
+        error: "Não foi possível publicar as assinaturas.",
         published: 0,
-        errors: [],
+        failedCount: 0,
       },
       { status: 500 },
     );

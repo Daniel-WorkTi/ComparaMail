@@ -3,7 +3,6 @@ import { isProductionRuntime } from "@/lib/runtime";
 import { safeEqualString } from "@/lib/security";
 
 function signingSecret(): string {
-  // PHOTO_SIGNING_SECRET permite alinhar local + Vercel sem partilhar AUTH_SECRET
   const secret =
     process.env.PHOTO_SIGNING_SECRET || process.env.AUTH_SECRET;
   if (secret) return secret;
@@ -61,15 +60,20 @@ export function emailFromWorkspacePhotoToken(token: string): string | null {
 }
 
 /**
- * Path público para foto Workspace (Gmail).
- * Sem HMAC — o /api/wphoto valida domínio @comparaja.pt + rate limit.
- * Assim local e Vercel não precisam do mesmo AUTH_SECRET.
+ * Path assinado para foto Workspace (Gmail / email HTML).
+ * Requer HMAC — /api/wphoto rejeita pedidos sem sessão ou assinatura.
  */
-export function workspacePhotoPath(email: string): string {
-  return `/api/wphoto/${workspacePhotoToken(email)}`;
+export function workspacePhotoPath(
+  email: string,
+  ttlSec = 60 * 60 * 24 * 365,
+): string {
+  const id = workspacePhotoToken(email);
+  const exp = Math.floor(Date.now() / 1000) + ttlSec;
+  const s = signPhotoToken(`wphoto:${id}`, exp);
+  return `/api/wphoto/${id}?e=${exp}&s=${s}`;
 }
 
-/** @deprecated use workspacePhotoPath — mantido por compat. */
+/** @deprecated alias — preferir workspacePhotoPath */
 export function signedWorkspacePhotoPath(email: string): string {
   return workspacePhotoPath(email);
 }

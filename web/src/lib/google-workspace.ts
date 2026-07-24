@@ -171,16 +171,14 @@ export function workspaceConfigDebug(): {
 
 function adminEmail(): string {
   const email = workspaceAdminEmail();
-  if (!email) throw new Error("GOOGLE_WORKSPACE_ADMIN_EMAIL em falta");
+  if (!email) throw new Error("Integração Google incompleta.");
   return email;
 }
 
 async function getAuthClient(subject: string, scopes: string[]): Promise<JWT> {
   const sa = parseServiceAccount();
   if (!sa) {
-    throw new Error(
-      "Service Account em falta. Usa GOOGLE_SERVICE_ACCOUNT_FILE (recomendado) ou GOOGLE_SERVICE_ACCOUNT_JSON.",
-    );
+    throw new Error("Integração Google incompleta.");
   }
 
   const client = new JWT({
@@ -194,9 +192,7 @@ async function getAuthClient(subject: string, scopes: string[]): Promise<JWT> {
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     if (/unauthorized_client|not authorized|invalid_scope/i.test(msg)) {
-      throw new Error(
-        `Scope não autorizado na delegação do domínio: ${scopes.join(", ")}. No Google Admin → Segurança → Delegação em todo o domínio, adiciona este scope ao Client ID da Service Account.`,
-      );
+      throw new Error("Permissão Google insuficiente.");
     }
     throw err;
   }
@@ -339,12 +335,11 @@ export async function updateWorkspaceUserTitle(
   );
   if (!getRes.ok) {
     const text = await getRes.text();
+    console.error("[directory GET]", getRes.status, text.slice(0, 200));
     if (getRes.status === 403) {
-      throw new Error(
-        "Sem permissão (403). No Google Admin → Delegação do domínio, adiciona o scope admin.directory.user à Service Account.",
-      );
+      throw new Error("Permissão Google insuficiente.");
     }
-    throw new Error(`Directory GET ${getRes.status}: ${text.slice(0, 240)}`);
+    throw new Error("Não foi possível ler o utilizador.");
   }
 
   const user = (await getRes.json()) as DirectoryUser & {
@@ -397,12 +392,11 @@ export async function updateWorkspaceUserTitle(
   });
   if (!patchRes.ok) {
     const text = await patchRes.text();
+    console.error("[directory PATCH]", patchRes.status, text.slice(0, 200));
     if (patchRes.status === 403) {
-      throw new Error(
-        "Sem permissão para escrever cargos (403). Adiciona https://www.googleapis.com/auth/admin.directory.user na delegação do domínio e espera 1–2 min.",
-      );
+      throw new Error("Permissão Google insuficiente.");
     }
-    throw new Error(`Directory PATCH ${patchRes.status}: ${text.slice(0, 240)}`);
+    throw new Error("Não foi possível actualizar o cargo.");
   }
 }
 
