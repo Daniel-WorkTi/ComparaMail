@@ -76,8 +76,14 @@ export function AdminPanel({
         } else if (!d.configured) {
           const dbg = d.debug;
           if (dbg && !dbg.hasServiceAccount) {
+            const onVercel = Boolean(
+              typeof window !== "undefined" &&
+                /vercel\.app|comparamail/i.test(window.location.hostname),
+            );
             setWorkspaceHint(
-              "Service Account inválida no ambiente. O JSON no .env.local costuma partir-se: corre `node scripts/extract-sa-json.cjs` (cria web/.secrets/google-sa.json) e reinicia.",
+              onVercel
+                ? "Service Account inválida na Vercel. Em Environment Variables usa GOOGLE_SERVICE_ACCOUNT_JSON_BASE64 (JSON completo em Base64) ou EMAIL+PRIVATE_KEY separados — o JSON numa linha costuma partir."
+                : "Service Account inválida no ambiente. O JSON no .env.local costuma partir-se: corre `node scripts/extract-sa-json.cjs` (cria web/.secrets/google-sa.json) e reinicia.",
             );
           } else if (dbg && !dbg.hasAdminEmail) {
             setWorkspaceHint(
