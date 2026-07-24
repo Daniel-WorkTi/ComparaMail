@@ -42,18 +42,38 @@ function stripQuotes(value: string): string {
 }
 
 function tryParseServiceAccountJson(raw: string): ServiceAccountJson | null {
-  try {
-    let parsed: unknown = JSON.parse(raw);
-    if (typeof parsed === "string") parsed = JSON.parse(parsed);
-    const obj = parsed as ServiceAccountJson;
-    if (obj?.client_email && obj?.private_key) {
-      return {
-        client_email: obj.client_email,
-        private_key: String(obj.private_key).replace(/\\n/g, "\n"),
-      };
+  const cleaned = stripQuotes(raw.trim());
+  if (!cleaned) return null;
+
+  const candidates = [cleaned];
+  // Vercel / .env por vezes guardam aspas escapadas: {\"type\":...}
+  if (cleaned.includes('\\"')) {
+    candidates.push(cleaned.replace(/\\"/g, '"'));
+  }
+  // Às vezes chega como base64 do JSON completo
+  if (!cleaned.trimStart().startsWith("{")) {
+    try {
+      const decoded = Buffer.from(cleaned, "base64").toString("utf8");
+      if (decoded.trimStart().startsWith("{")) candidates.push(decoded);
+    } catch {
+      // ignore
     }
-  } catch {
-    return null;
+  }
+
+  for (const candidate of candidates) {
+    try {
+      let parsed: unknown = JSON.parse(candidate);
+      if (typeof parsed === "string") parsed = JSON.parse(parsed);
+      const obj = parsed as ServiceAccountJson & { private_key?: string };
+      if (obj?.client_email && obj?.private_key) {
+        return {
+          client_email: obj.client_email,
+          private_key: String(obj.private_key).replace(/\\n/g, "\n"),
+        };
+      }
+    } catch {
+      // tenta próximo candidato
+    }
   }
   return null;
 }
@@ -90,13 +110,25 @@ function parseServiceAccount(): ServiceAccountJson | null {
   const fromFile = loadServiceAccountFromFile();
   if (fromFile) return fromFile;
 
+  // Preferido na Vercel: JSON em Base64 (não parte com aspas/newlines)
+  const b64 = process.env.GOOGLE_SERVICE_ACCOUNT_JSON_BASE64?.trim();
+  if (b64) {
+    try {
+      const decoded = Buffer.from(b64, "base64").toString("utf8");
+      const fromB64 = tryParseServiceAccountJson(decoded);
+      if (fromB64) return fromB64;
+    } catch {
+      // continua
+    }
+  }
+
   const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON?.trim();
   if (raw) {
     const fromEnv = tryParseServiceAccountJson(raw);
     if (fromEnv) return fromEnv;
   }
 
-  const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL?.trim();
+  const email = stripQuotes(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || "");
   const key = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY?.replace(
     /\\n/g,
     "\n",
